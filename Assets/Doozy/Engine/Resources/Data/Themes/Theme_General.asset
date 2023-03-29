@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a151aae416b497c9eaea8aa5ac1c555, type: 3}
+  m_Name: General
+  m_EditorClassIdentifier: 
+  m_themeName: General
+  SerializedGuid: 69a3767646255f4a80e7cab01e220427
+  m_activeVariant:
+    m_variantName: Default
+    SerializedGuid: cb25c64866ca174cafa2e4a3076ddfa6
+    Colors:
+    - m_color: {r: 1, g: 1, b: 1, a: 1}
+      SerializedGuid: 110a14e842276340bf6dd5b96be3d3d6
+    - m_color: {r: 1, g: 1, b: 1, a: 1}
+      SerializedGuid: 9a961b94c522bc48b8946e1c4a48a9b0
+    - m_color: {r: 1, g: 1, b: 1, a: 1}
+      SerializedGuid: 02fca2721acbfd4aa61c8da77ce6263a
+    - m_color: {r: 1, g: 1, b: 1, a: 1}
+      SerializedGuid: 9076dca959a73f478055b85b8862de62
+    - m_color: {r: 1, g: 1, b: 1, a: 1}
+      SerializedGuid: ac0b336fd4a6054694104fa718b729d6
+    - m_color: {r: 1, g: 1, b: 1, a: 1}
+      SerializedGuid: 9e8f93200ef9ff47aeba2407e152190e
+    Sprites: []
+    Textures: []
+    Fonts: []
+    FontAssets: []
+  ColorLabels:
+  - m_label: Primary
+    SerializedGuid: 110a14e842276340bf6dd5b96be3d3d6
+  - m_label: Secondary
+    SerializedGuid: 9a961b94c522bc48b8946e1c4a48a9b0
+  - m_label: Accent 1
+    SerializedGuid: 02fca2721acbfd4aa61c8da77ce6263a
+  - m_label: Accent 2
+    SerializedGuid: 9076dca959a73f478055b85b8862de62
+  - m_label: Text
+    SerializedGuid: ac0b336fd4a6054694104fa718b729d6
+  - m_label: Disabled
+    SerializedGuid: 9e8f93200ef9ff47aeba2407e152190e
+  SpriteLabels: []
+  TextureLabels: []
+  FontLabels: []
+  FontAssetLabels: []
+  VariantsNames:
+  - Default
+  Variants:
+  - m_variantName: Default
+    SerializedGuid: cb25c64866ca174cafa2e4a3076ddfa6
+    Colors:
+    - m_color: {r: 1, g: 1, b: 1, a: 1}
+      SerializedGuid: 110a14e842276340bf6dd5b96be3d3d6
+    - m_color: {r: 1, g: 1, b: 1, a: 1}
+      SerializedGuid: 9a961b94c522bc48b8946e1c4a48a9b0
+    - m_color: {r: 1, g: 1, b: 1, a: 1}
+      SerializedGuid: 02fca2721acbfd4aa61c8da77ce6263a
+    - m_color: {r: 1, g: 1, b: 1, a: 1}
+      SerializedGuid: 9076dca959a73f478055b85b8862de62
+    - m_color: {r: 1, g: 1, b: 1, a: 1}
+      SerializedGuid: ac0b336fd4a6054694104fa718b729d6
+    - m_color: {r: 1, g: 1, b: 1, a: 1}
+      SerializedGuid: 9e8f93200ef9ff47aeba2407e152190e
+    Sprites: []
+    Textures: []
+    Fonts: []
+    FontAssets: []
