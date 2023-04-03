@@ -1,6 +1,5 @@
 using System.Drawing;
 using OpenCvSharp;
-using SkiaSharp;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,18 +19,8 @@ public class Test : MonoBehaviour
 
     private void TestPlots()
     {
-        ScottPlot.Plot myPlot = new();
-
-        double[] dataX = { 1, 2, 3, 4, 5 };
-        double[] dataY = { 1, 4, 9, 16, 25 };
-        myPlot.Add.Scatter(dataX, dataY);
         
-        SKSurface surface = SKSurface.Create(new SKImageInfo(512, 512));
         
-        myPlot.Render(surface);
-        
-        var bitmap = new Bitmap(surface.Snapshot().Encode().AsStream());
-        ImageLoader.LoadFromBitmap(bitmap);
     }
 
     private void TestImageFunctions()
