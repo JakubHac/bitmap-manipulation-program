@@ -5,6 +5,7 @@ using Sirenix.OdinInspector;
 using SuperMaxim.Messaging;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Zenject;
 
@@ -19,9 +20,9 @@ public class MovableUIManager : MonoBehaviour
 	private Vector2? lastMousePos;
 	[ShowInInspector] [ReadOnly] private Vector2 holdDelta = Vector2.zero;
 	[ShowInInspector] [ReadOnly] private Vector2 MousePos = Vector2.zero;
-	[ShowInInspector] [ReadOnly] private string UnderMouse;
+	[ShowInInspector] [ReadOnly] private GameObject LastDragTarget = null;
 	[SerializeField] private GraphicRaycaster Raycaster;
-	[SerializeField] private bool DebugUnderMouse;
+	[FormerlySerializedAs("DebugUnderMouse")] [SerializeField] private bool DebugLastDragTarget;
 	
 	PointerEventData PointerEventData;
 
@@ -43,17 +44,22 @@ public class MovableUIManager : MonoBehaviour
 			position = Input.mousePosition
 		};
 		List<RaycastResult> results = new List<RaycastResult>();
-		Raycaster.Raycast(PointerEventData, results);
-
-		UnderMouse = null;
+		if (LastDragTarget == null)
+		{
+			Raycaster.Raycast(PointerEventData, results);
+		}
+		
 		if (results.Count > 0 && results[0].gameObject is { } hit)
 		{
-			UnderMouse = hit.name;
 			if (Input.GetMouseButton(0))
 			{
-				if (!HandleHold(hit))
+				if (LastDragTarget != null)
 				{
-					HandleDrag(hit);
+					HandleDragSpecific(LastDragTarget);
+				}
+				else if (!HandleHold(hit))
+				{
+					HandleDragSpecific(hit);
 				}
 			}
 			else if (Input.GetMouseButtonDown(1))
@@ -61,25 +67,52 @@ public class MovableUIManager : MonoBehaviour
 				HandleRightClick(hit);
 			}
 		}
-
-		if (DebugUnderMouse && UnderMouse != null)
+		else
 		{
-			Debug.Log("Under Mouse: " + UnderMouse);
+			if (Input.GetMouseButton(0))
+			{
+				if (LastDragTarget == null)
+				{
+					HandleDragAll();
+				}
+				else
+				{
+					HandleDragSpecific(LastDragTarget);
+				}
+			}
+			else
+			{
+				LastDragTarget = null;
+			}
+		}
+
+		if (DebugLastDragTarget && LastDragTarget != null)
+		{
+			Debug.Log("Last Drag Target: " + LastDragTarget);
 		}
 		
 
 		lastMousePos = MousePos;
 	}
 
-	private void HandleDrag(GameObject hit)
+	private void HandleDragAll()
+	{
+		var delta = new Vector2(MousePos.x - lastMousePos.Value.x, MousePos.y - lastMousePos.Value.y);
+		foreach (var dragTarget in DragTargets)
+		{
+			dragTarget.OnDrag(delta);
+		}
+	}
+
+	private void HandleDragSpecific(GameObject hit)
 	{
 		foreach (var dragTarget in DragTargets)
 		{
 			if (dragTarget.GameObjects.Any(x => x == hit))
 			{
-				var delta = holdDelta +=
-					new Vector2(MousePos.x - lastMousePos.Value.x, MousePos.y - lastMousePos.Value.y);
+				var delta = new Vector2(MousePos.x - lastMousePos.Value.x, MousePos.y - lastMousePos.Value.y);
 				dragTarget.OnDrag(delta);
+				LastDragTarget = hit;
 				break;
 			}
 		}

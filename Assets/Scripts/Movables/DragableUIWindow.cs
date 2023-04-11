@@ -36,13 +36,12 @@ public class DragableUIWindow : SerializedMonoBehaviour
 	private void OnDestroy()
 	{
 		Messenger.Default.Publish(new UnRegisterDragTarget(self_DragTarget));
-		
 	}
 
 	
 
 	private void OnDrag(Vector2 dragValue)
 	{
-		WindowRectTransform.anchoredPosition += dragValue;
+		WindowRectTransform.position += new Vector3(dragValue.x, dragValue.y, 0f);
 	}
 }
