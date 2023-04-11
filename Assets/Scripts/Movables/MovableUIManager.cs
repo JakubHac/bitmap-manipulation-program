@@ -17,6 +17,7 @@ public class MovableUIManager : MonoBehaviour
 
 	private RightClickTarget HoldTarget;
 	private float holdTime;
+	private bool HoldExecuted = false;
 	private Vector2? lastMousePos;
 	[ShowInInspector] [ReadOnly] private Vector2 holdDelta = Vector2.zero;
 	[ShowInInspector] [ReadOnly] private Vector2 MousePos = Vector2.zero;
@@ -82,6 +83,7 @@ public class MovableUIManager : MonoBehaviour
 			}
 			else
 			{
+				HoldExecuted = false;
 				LastDragTarget = null;
 			}
 		}
@@ -132,12 +134,12 @@ public class MovableUIManager : MonoBehaviour
 				else
 				{
 					holdTime += Time.deltaTime;
-					if (holdTime > HoldTimeThreshold)
+					if (holdTime > HoldTimeThreshold && !HoldExecuted)
 					{
+						HoldExecuted = true;
 						HoldTarget?.OnRightClick();
 					}
 				}
-				
 				return true;
 			}
 		}

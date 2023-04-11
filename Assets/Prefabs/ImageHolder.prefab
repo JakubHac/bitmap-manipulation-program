@@ -12,8 +12,7 @@ GameObject:
   - component: {fileID: 6808487305986122979}
   - component: {fileID: 1261976114834824310}
   - component: {fileID: 2577944561407420195}
-  - component: {fileID: 6193474788773545910}
-  - component: {fileID: 5769716453381682083}
+  - component: {fileID: 8785910840478866336}
   m_Layer: 0
   m_Name: ImageHolder
   m_TagString: Untagged
@@ -98,31 +97,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   Image: {fileID: 1261976114834824310}
-  RectTransform: {fileID: 6360485628671187557}
-  Raycaster: {fileID: 0}
---- !u!223 &6193474788773545910
-Canvas:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9175165028292767989}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_RenderMode: 2
-  m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
-  m_PixelPerfect: 0
-  m_ReceivesEvents: 1
-  m_OverrideSorting: 0
-  m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 0
-  m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
-  m_TargetDisplay: 0
---- !u!114 &5769716453381682083
+--- !u!114 &8785910840478866336
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,11 +106,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 9175165028292767989}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Script: {fileID: 11500000, guid: 2cf9c0d099398bc46a576c031e223067, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 55
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
