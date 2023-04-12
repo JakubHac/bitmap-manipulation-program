@@ -13,22 +13,19 @@ public class MovableUIManager : MonoBehaviour
 {
 	[Inject] Camera MainCamera;
 	private const float ImageCanvasPlaneDistance = 99f;
-	private const float HoldTimeThreshold = 0.5f;
 
-	private RightClickTarget HoldTarget;
-	private float holdTime;
-	private bool HoldExecuted = false;
 	private Vector2? lastMousePos;
 	[ShowInInspector] [ReadOnly] private Vector2 holdDelta = Vector2.zero;
 	[ShowInInspector] [ReadOnly] private Vector2 MousePos = Vector2.zero;
 	[ShowInInspector] [ReadOnly] private GameObject LastDragTarget = null;
 	[SerializeField] private GraphicRaycaster Raycaster;
-	[FormerlySerializedAs("DebugUnderMouse")] [SerializeField] private bool DebugLastDragTarget;
-	
+
+	[FormerlySerializedAs("DebugUnderMouse")] [SerializeField]
+	private bool DebugLastDragTarget;
+
 	PointerEventData PointerEventData;
 
 	List<DragTarget> DragTargets = new();
-	List<RightClickTarget> RightClickTargets = new();
 
 	private void Update()
 	{
@@ -40,37 +37,30 @@ public class MovableUIManager : MonoBehaviour
 			lastMousePos = MousePos;
 		}
 
-		PointerEventData = new PointerEventData(EventSystem.current)
+		if (Input.GetMouseButton(0))
 		{
-			position = Input.mousePosition
-		};
-		List<RaycastResult> results = new List<RaycastResult>();
-		if (LastDragTarget == null)
-		{
-			Raycaster.Raycast(PointerEventData, results);
-		}
-		
-		if (results.Count > 0 && results[0].gameObject is { } hit)
-		{
-			if (Input.GetMouseButton(0))
+			List<RaycastResult> results = new List<RaycastResult>();
+			if (LastDragTarget == null)
+			{
+				PointerEventData = new PointerEventData(EventSystem.current)
+				{
+					position = Input.mousePosition
+				};
+				Raycaster.Raycast(PointerEventData, results);
+			}
+
+			if (results.Count > 0 && results[0].gameObject is { } hit)
 			{
 				if (LastDragTarget != null)
 				{
 					HandleDragSpecific(LastDragTarget);
 				}
-				else if (!HandleHold(hit))
+				else
 				{
 					HandleDragSpecific(hit);
 				}
 			}
-			else if (Input.GetMouseButtonDown(1))
-			{
-				HandleRightClick(hit);
-			}
-		}
-		else
-		{
-			if (Input.GetMouseButton(0))
+			else
 			{
 				if (LastDragTarget == null)
 				{
@@ -81,18 +71,11 @@ public class MovableUIManager : MonoBehaviour
 					HandleDragSpecific(LastDragTarget);
 				}
 			}
-			else
-			{
-				HoldExecuted = false;
-				LastDragTarget = null;
-			}
 		}
-
-		if (DebugLastDragTarget && LastDragTarget != null)
+		else
 		{
-			Debug.Log("Last Drag Target: " + LastDragTarget);
+			LastDragTarget = null;
 		}
-		
 
 		lastMousePos = MousePos;
 	}
@@ -120,66 +103,15 @@ public class MovableUIManager : MonoBehaviour
 		}
 	}
 
-	private bool HandleHold(GameObject hit)
-	{
-		foreach (var rightClickTarget in RightClickTargets)
-		{
-			if (rightClickTarget.GameObjects.Any(x => x == hit))
-			{
-				if (HoldTarget != rightClickTarget)
-				{
-					HoldTarget = rightClickTarget;
-					holdTime = 0f;
-				}
-				else
-				{
-					holdTime += Time.deltaTime;
-					if (holdTime > HoldTimeThreshold && !HoldExecuted)
-					{
-						HoldExecuted = true;
-						HoldTarget?.OnRightClick();
-					}
-				}
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private void HandleRightClick(GameObject hit)
-	{
-		foreach (var rightClickTarget in RightClickTargets)
-		{
-			if (rightClickTarget.GameObjects.Any(x => x == hit))
-			{
-				rightClickTarget.OnRightClick();
-				break;
-			}
-		}
-	}
-
 	private void OnEnable()
 	{
 		Messenger.Default.Subscribe<RegisterDragTarget>(HandleRegisterDragTarget);
-		Messenger.Default.Subscribe<RegisterRightClickTarget>(HandleRegisterRightClickTarget);
 		Messenger.Default.Subscribe<UnRegisterDragTarget>(HandleUnRegisterDragTarget);
-		Messenger.Default.Subscribe<UnRegisterRightClickTarget>(HandleUnRegisterRightClickTarget);
-	}
-
-	private void HandleUnRegisterRightClickTarget(UnRegisterRightClickTarget obj)
-	{
-		RightClickTargets.Remove(obj.RightClickTarget);
 	}
 
 	private void HandleUnRegisterDragTarget(UnRegisterDragTarget obj)
 	{
 		DragTargets.Remove(obj.DragTarget);
-	}
-
-	private void HandleRegisterRightClickTarget(RegisterRightClickTarget registerRightClickTarget)
-	{
-		RightClickTargets.Add(registerRightClickTarget.RightClickTarget);
 	}
 
 	private void HandleRegisterDragTarget(RegisterDragTarget registerDragTarget)
@@ -190,8 +122,6 @@ public class MovableUIManager : MonoBehaviour
 	private void OnDisable()
 	{
 		Messenger.Default.Unsubscribe<RegisterDragTarget>(HandleRegisterDragTarget);
-		Messenger.Default.Unsubscribe<RegisterRightClickTarget>(HandleRegisterRightClickTarget);
 		Messenger.Default.Unsubscribe<UnRegisterDragTarget>(HandleUnRegisterDragTarget);
-		Messenger.Default.Unsubscribe<UnRegisterRightClickTarget>(HandleUnRegisterRightClickTarget);
 	}
 }

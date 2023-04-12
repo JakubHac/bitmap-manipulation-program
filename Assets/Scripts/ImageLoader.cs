@@ -2,8 +2,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using OpenCvSharp;
 using SimpleFileBrowser;
 using UnityEngine;
 
@@ -11,6 +9,18 @@ public class ImageLoader : MonoBehaviour
 {
     [SerializeField] private RectTransform ImagesParent;
     [SerializeField] GameObject ImageHolderPrefab;
+
+    public static ImageLoader Instance;
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(this);
+            return;
+        }
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -53,7 +63,7 @@ public class ImageLoader : MonoBehaviour
         SpawnWithTexture(texture);
     }
 
-    private void SpawnWithTexture(Texture2D texture)
+    public void SpawnWithTexture(Texture2D texture)
     {
         GameObject imageHolder = Instantiate(ImageHolderPrefab, ImagesParent);
         imageHolder.GetComponent<ImageHolder>().Texture = texture;

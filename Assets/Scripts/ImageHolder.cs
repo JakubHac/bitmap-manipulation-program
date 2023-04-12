@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using SuperMaxim.Messaging;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,5 +30,8 @@ public class ImageHolder : SerializedMonoBehaviour
 		GetComponent<RectTransform>().sizeDelta = new Vector2(Texture.width, Texture.height);
 	}
 
-	
+	public void EditImage()
+	{
+		Messenger.Default.Publish(new EditImageHolder(this));
+	}
 }
