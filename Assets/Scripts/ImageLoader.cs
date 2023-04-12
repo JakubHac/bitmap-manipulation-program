@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using SimpleFileBrowser;
 using UnityEngine;
+using Color = UnityEngine.Color;
 
 public class ImageLoader : MonoBehaviour
 {
@@ -51,22 +52,34 @@ public class ImageLoader : MonoBehaviour
     private void LoadImageFromPath(string path)
     {
         var bitmap = Image.FromFile(path);
-        LoadFromBitmap(bitmap);
+        var fileName = Path.GetFileName(path);
+        LoadFromBitmap(bitmap, fileName);
     }
 
-    public void LoadFromBitmap(Image bitmap)
+    public void LoadFromBitmap(Image bitmap, string title = null)
     {
         using MemoryStream stream = new MemoryStream();
         bitmap.Save(stream, ImageFormat.Png);
         Texture2D texture = new Texture2D(2, 2);
         texture.LoadImage(stream.ToArray());
-        SpawnWithTexture(texture);
+        SpawnWithTexture(texture, title: title);
     }
 
-    public void SpawnWithTexture(Texture2D texture)
+    public void SpawnWithTexture(Texture2D texture, Color? color = null, string title = null)
     {
         GameObject imageHolder = Instantiate(ImageHolderPrefab, ImagesParent);
         imageHolder.GetComponent<ImageHolder>().Texture = texture;
         imageHolder.GetComponent<RectTransform>().localPosition = Vector3.zero;
+        var window = imageHolder.GetComponent<DragableUIWindow>();
+        if (color != null)
+        {
+            window.WindowColor = color.Value;
+        }
+
+        if (title != null)
+        {
+            window.WindowTitle = title;
+        }
+
     }
 }
