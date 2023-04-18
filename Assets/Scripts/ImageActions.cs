@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using OpenCvSharp;
+using SuperMaxim.Messaging;
 using UnityEngine;
 
 public static class ImageActions
@@ -79,6 +80,6 @@ public static class ImageActions
         using Mat grayMat = new Mat();
         Cv2.CvtColor(mat, grayMat, ColorConversionCodes.BGR2GRAY);
         Texture2D texture = OpenCvSharp.Unity.MatToTexture(grayMat);
-        ImageLoader.Instance.SpawnWithTexture(texture, Color.black, source.GetComponent<DragableUIWindow>().WindowTitle + " - Odcienie Szarości");
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Odcienie Szarości"));
     }
 }

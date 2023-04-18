@@ -21,6 +21,7 @@ public class ImageHolder : SerializedMonoBehaviour
 			else
 			{
 				Image.texture = value;
+				GetComponent<RectTransform>().sizeDelta = new Vector2(Texture.width, Texture.height);
 			}
 		}
 	}
@@ -33,5 +34,10 @@ public class ImageHolder : SerializedMonoBehaviour
 	public void EditImage()
 	{
 		Messenger.Default.Publish(new EditImageHolder(this));
+	}
+
+	public void ReplaceTexture(Texture2D newImageTexture)
+	{
+		Texture = newImageTexture;
 	}
 }
