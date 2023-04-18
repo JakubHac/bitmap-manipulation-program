@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenCvSharp;
 using SuperMaxim.Messaging;
 using UnityEngine;
@@ -11,8 +12,39 @@ public static class ImageActions
         {"Odcienie Szarości", ToBlackAndWhite},
         {"Podziel na RGB", SplitRGB},
         {"Podziel na HSV", SplitHSV},
-        {"Podziel na LAB", SplitLAB}
+        {"Podziel na LAB", SplitLAB},
+        {"Histogram (wykres)", HistogramPlot},
+        {"Histogram (tablica)", HistogramTable}
     };
+    
+    
+    private const float UnityColorToHistogramAverage = 255f / 3f;
+    private static double[] GetHistogram(Texture2D texture)
+    {
+        double[] histogram = new double[256];
+        for (int i = 0; i < texture.width; i++)
+        {
+            for (int j = 0; j < texture.height; j++)
+            {
+                var pixel = texture.GetPixel(i, j);
+                float avg = (pixel.r + pixel.g + pixel.b) * UnityColorToHistogramAverage;
+                int gray = Mathf.RoundToInt(avg);
+                histogram[gray]++;
+            }
+        }
+
+        return histogram;
+    }
+
+    private static void HistogramTable(ImageHolder obj)
+    {
+        
+    }
+
+    private static void HistogramPlot(ImageHolder obj)
+    {
+        Messenger.Default.Publish(new CreateBarPlotEvent("Histogram", obj.GetComponent<DragableUIWindow>().WindowTitle, GetHistogram(obj.Texture).ToArray(), "Wartość"));
+    }
 
     private static void SplitLAB(ImageHolder source)
     {

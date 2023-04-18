@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6c59330ca0f4443b69f06b890a44f32e, type: 3}
-  m_Name: XCTheme-Dark
+  m_Name: OurBarPlotTheme
   m_EditorClassIdentifier: 
-  m_ThemeType: 2
-  m_ThemeName: Dark
+  m_ThemeType: 3
+  m_ThemeName: OurBarPlotTheme
   m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-  m_TMPFont: {fileID: 0}
+  m_TMPFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_ContrastColor:
     serializedVersion: 2
     rgba: 0
   m_BackgroundColor:
     serializedVersion: 2
-    rgba: 4286611584
+    rgba: 4278851597
   m_ColorPalette:
   - serializedVersion: 2
-    rgba: 4294939209
+    rgba: 4280971044
   - serializedVersion: 2
     rgba: 4289920892
   - serializedVersion: 2
@@ -43,47 +43,47 @@ MonoBehaviour:
     rgba: 4294932957
   m_Common:
     m_Font: {fileID: 0}
-    m_TextColor: {r: 0.7254902, g: 0.72156864, b: 0.80784315, a: 1}
+    m_TextColor: {r: 1, g: 1, b: 1, a: 1}
     m_TextBackgroundColor: {r: 0, g: 0, b: 0, a: 0}
     m_FontSize: 20
-    m_TMPFont: {fileID: 0}
+    m_TMPFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_Title:
     m_Font: {fileID: 0}
-    m_TextColor: {r: 0.93333334, g: 0.94509804, b: 0.98039216, a: 1}
+    m_TextColor: {r: 1, g: 1, b: 1, a: 1}
     m_TextBackgroundColor: {r: 0, g: 0, b: 0, a: 0}
     m_FontSize: 24
-    m_TMPFont: {fileID: 0}
+    m_TMPFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_SubTitle:
     m_Font: {fileID: 0}
-    m_TextColor: {r: 0.7254902, g: 0.72156864, b: 0.80784315, a: 1}
+    m_TextColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
     m_TextBackgroundColor: {r: 0, g: 0, b: 0, a: 0}
     m_FontSize: 22
-    m_TMPFont: {fileID: 0}
+    m_TMPFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_Legend:
     m_Font: {fileID: 0}
-    m_TextColor: {r: 0.7254902, g: 0.72156864, b: 0.80784315, a: 1}
+    m_TextColor: {r: 1, g: 1, b: 1, a: 1}
     m_TextBackgroundColor: {r: 0, g: 0, b: 0, a: 0}
     m_FontSize: 20
-    m_TMPFont: {fileID: 0}
+    m_TMPFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     m_UnableColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
   m_Axis:
     m_Font: {fileID: 0}
-    m_TextColor: {r: 0.7254902, g: 0.72156864, b: 0.80784315, a: 1}
+    m_TextColor: {r: 1, g: 1, b: 1, a: 1}
     m_TextBackgroundColor: {r: 0, g: 0, b: 0, a: 0}
     m_FontSize: 18
-    m_TMPFont: {fileID: 0}
+    m_TMPFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     m_LineType: 0
     m_LineWidth: 0.8
     m_LineLength: 0
     m_LineColor:
       serializedVersion: 2
-      rgba: 4286148718
+      rgba: 4294967295
     m_SplitLineType: 0
     m_SplitLineWidth: 0.8
     m_SplitLineLength: 0
     m_SplitLineColor:
       serializedVersion: 2
-      rgba: 4294043360
+      rgba: 4294967295
     m_MinorSplitLineColor:
       serializedVersion: 2
       rgba: 4294834164
@@ -91,7 +91,7 @@ MonoBehaviour:
     m_TickLength: 5
     m_TickColor:
       serializedVersion: 2
-      rgba: 4286148718
+      rgba: 4294967295
     m_SplitAreaColors:
     - serializedVersion: 2
       rgba: 100663295
@@ -102,18 +102,18 @@ MonoBehaviour:
     m_TextColor: {r: 0, g: 0, b: 0, a: 1}
     m_TextBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
     m_FontSize: 20
-    m_TMPFont: {fileID: 0}
-    m_LineType: 0
-    m_LineWidth: 0.8
+    m_TMPFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    m_LineType: 5
+    m_LineWidth: 0
     m_LineColor:
       serializedVersion: 2
-      rgba: 1680419113
+      rgba: 4278190080
     m_AreaColor:
       serializedVersion: 2
-      rgba: 542200145
+      rgba: 855703372
     m_LabelTextColor:
       serializedVersion: 2
-      rgba: 4294967295
+      rgba: 4278190080
     m_LabelBackgroundColor:
       serializedVersion: 2
       rgba: 4280887593
@@ -122,7 +122,7 @@ MonoBehaviour:
     m_TextColor: {r: 0.7254902, g: 0.72156864, b: 0.80784315, a: 1}
     m_TextBackgroundColor: {r: 0, g: 0, b: 0, a: 0}
     m_FontSize: 20
-    m_TMPFont: {fileID: 0}
+    m_TMPFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     m_BorderWidth: 0.5
     m_DataLineWidth: 0.5
     m_FillerColor:
