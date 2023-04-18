@@ -164,7 +164,7 @@ public class DragableUIWindow : SerializedMonoBehaviour
 		OnEditButton?.Invoke();
 	}
 
-	private void ExecuteClose()
+	public void ExecuteClose()
 	{
 		Destroy(Window);
 	}
@@ -174,8 +174,12 @@ public class DragableUIWindow : SerializedMonoBehaviour
 		Messenger.Default.Publish(new UnRegisterDragTarget(self_DragTarget));
 	}
 
-	private void OnDrag(Vector2 dragValue)
+	private void OnDrag(Vector2 dragValue, bool focus)
 	{
 		WindowRectTransform.position += new Vector3(dragValue.x, dragValue.y, 0f);
+		if (focus && WindowRectTransform != null)
+		{
+			WindowRectTransform.SetAsLastSibling();
+		}
 	}
 }

@@ -1,3 +1,4 @@
+using System;
 using Sirenix.OdinInspector;
 using SuperMaxim.Messaging;
 using UnityEngine;
@@ -6,6 +7,9 @@ using UnityEngine.UI;
 public class ImageHolder : SerializedMonoBehaviour
 {
 	[SerializeField] private RawImage Image;
+
+	public Action OnTextureUpdated;
+	public Action OnCloseImage;
 	
 	public Texture2D Texture
 	{
@@ -22,6 +26,7 @@ public class ImageHolder : SerializedMonoBehaviour
 			{
 				Image.texture = value;
 				GetComponent<RectTransform>().sizeDelta = new Vector2(Texture.width, Texture.height);
+				OnTextureUpdated?.Invoke();
 			}
 		}
 	}
@@ -39,5 +44,10 @@ public class ImageHolder : SerializedMonoBehaviour
 	public void ReplaceTexture(Texture2D newImageTexture)
 	{
 		Texture = newImageTexture;
+	}
+
+	private void OnDestroy()
+	{
+		OnCloseImage?.Invoke();
 	}
 }

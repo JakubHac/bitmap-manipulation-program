@@ -14,14 +14,27 @@ public static class ImageActions
         {"Podziel na HSV", SplitHSV},
         {"Podziel na LAB", SplitLAB},
         {"Histogram (wykres)", HistogramPlot},
-        {"Histogram (tablica)", HistogramTable}
+        {"Histogram (tablica)", HistogramTable},
+        {"Linia profilu (wykres)", ProfileLinePlot},
+        {"Linia profilu (tablica)", ProfileLineTable}
     };
-    
-    
+
+    private static void ProfileLineTable(ImageHolder obj)
+    {
+        
+    }
+
+    private static void ProfileLinePlot(ImageHolder obj)
+    {
+        
+    }
+
+
     private const float UnityColorToHistogramAverage = 255f / 3f;
-    private static double[] GetHistogram(Texture2D texture)
+    public static double[] GetHistogram(ImageHolder imageHolder)
     {
         double[] histogram = new double[256];
+        var texture = imageHolder.Texture;
         for (int i = 0; i < texture.width; i++)
         {
             for (int j = 0; j < texture.height; j++)
@@ -36,14 +49,35 @@ public static class ImageActions
         return histogram;
     }
 
-    private static void HistogramTable(ImageHolder obj)
+    public static double[] GetProfileLine(ImageHolder source, Vector2 normalizedStart, Vector2 normalizedEnd)
     {
+        using Mat mat = GetBlackAndWhiteMat(source);
+        LineIterator iterator = new LineIterator(mat, 
+            new Point(normalizedStart.x * source.Texture.width, normalizedStart.y * source.Texture.height), 
+            new Point(normalizedEnd.x * source.Texture.width, normalizedEnd.y * source.Texture.height));
         
+        double[] profileLine = new double[iterator.ElemSize];
+        var enumerator = iterator.GetEnumerator();
+        for (int i = 0; i < profileLine.Length; i++)
+        {
+            profileLine[i] = enumerator.Current.Value.ToInt32();
+            if (i + 1 < profileLine.Length)
+            {
+                enumerator.MoveNext();
+            }
+        }
+
+        return profileLine;
     }
 
-    private static void HistogramPlot(ImageHolder obj)
+    private static void HistogramTable(ImageHolder source)
     {
-        Messenger.Default.Publish(new CreateBarPlotEvent("Histogram", obj.GetComponent<DragableUIWindow>().WindowTitle, GetHistogram(obj.Texture).ToArray(), "Wartość"));
+        Messenger.Default.Publish(new CreateHistogramTableEvent(source));
+    }
+
+    private static void HistogramPlot(ImageHolder source)
+    {
+        Messenger.Default.Publish(new CreateHistogramPlotEvent(source));
     }
 
     private static void SplitLAB(ImageHolder source)
@@ -106,12 +140,18 @@ public static class ImageActions
         }
     }
 
-    private static void ToBlackAndWhite(ImageHolder source)
+    public static Mat GetBlackAndWhiteMat(ImageHolder source)
     {
         using Mat mat = OpenCvSharp.Unity.TextureToMat(source.Texture);
-        using Mat grayMat = new Mat();
+        Mat grayMat = new Mat();
         Cv2.CvtColor(mat, grayMat, ColorConversionCodes.BGR2GRAY);
-        Texture2D texture = OpenCvSharp.Unity.MatToTexture(grayMat);
+        return grayMat;
+    }
+    
+    private static void ToBlackAndWhite(ImageHolder source)
+    {
+        using var mat = GetBlackAndWhiteMat(source);
+        Texture2D texture = OpenCvSharp.Unity.MatToTexture(mat);
         Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Odcienie Szarości"));
     }
 }

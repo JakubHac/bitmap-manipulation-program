@@ -29,9 +29,17 @@ public class MovableUIManager : MonoBehaviour
 
 	private void Update()
 	{
+		if (!Application.isFocused)
+		{
+			lastMousePos = null;
+			return;
+		}
+		
 		Vector3 screenPoint = Input.mousePosition;
 		screenPoint.z = ImageCanvasPlaneDistance;
 		MousePos = MainCamera.ScreenToWorldPoint(screenPoint);
+		
+		
 		if (lastMousePos == null)
 		{
 			lastMousePos = MousePos;
@@ -80,12 +88,28 @@ public class MovableUIManager : MonoBehaviour
 		lastMousePos = MousePos;
 	}
 
+	private void OnApplicationFocus(bool hasFocus)
+	{
+		if (!hasFocus)
+		{
+			lastMousePos = null;
+		}
+	}
+
+	private void OnApplicationPause(bool pauseStatus)
+	{
+		if (pauseStatus)
+		{
+			lastMousePos = null;
+		}
+	}
+
 	private void HandleDragAll()
 	{
 		var delta = new Vector2(MousePos.x - lastMousePos.Value.x, MousePos.y - lastMousePos.Value.y);
 		foreach (var dragTarget in DragTargets)
 		{
-			dragTarget.OnDrag(delta);
+			dragTarget.OnDrag(delta, false);
 		}
 	}
 
@@ -96,7 +120,7 @@ public class MovableUIManager : MonoBehaviour
 			if (dragTarget.GameObjects.Any(x => x == hit))
 			{
 				var delta = new Vector2(MousePos.x - lastMousePos.Value.x, MousePos.y - lastMousePos.Value.y);
-				dragTarget.OnDrag(delta);
+				dragTarget.OnDrag(delta, true);
 				LastDragTarget = hit;
 				break;
 			}

@@ -9418,7 +9418,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a44f5328e131cd8499e53fbdbb57a56c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BarPlotPrefab: {fileID: 6483833406639988573, guid: dd0d5f7ccad727846817dd88c4540756, type: 3}
+  HistogramPlotPrefab: {fileID: 6483833406639988573, guid: dd0d5f7ccad727846817dd88c4540756, type: 3}
+  HistogramTablePrefab: {fileID: 2362195487521306574, guid: 773d7a6dfb6596c44ba339949dcd1fef, type: 3}
   BarParent: {fileID: 1866502733}
 --- !u!1 &825084846
 GameObject:
@@ -17133,7 +17134,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -2210, y: 1154}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1836039574
