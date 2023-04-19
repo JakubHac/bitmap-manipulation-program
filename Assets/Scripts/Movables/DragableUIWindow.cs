@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Doozy.Engine.UI;
 using Sirenix.OdinInspector;
 using SuperMaxim.Messaging;
@@ -45,6 +46,8 @@ public class DragableUIWindow : SerializedMonoBehaviour
 
 	[SerializeField] private bool IncludeEditButton;
 	[SerializeField] private UnityEvent OnEditButton;
+	[SerializeField] private Sprite CustomEditButtonSprite;
+	
 	
 	private void Start()
 	{
@@ -96,7 +99,7 @@ public class DragableUIWindow : SerializedMonoBehaviour
 
 	private void RegisterWindowAsDragTarget()
 	{
-		self_DragTarget = new DragTarget(Window, OnDrag);
+		self_DragTarget = new DragTarget(Window, OnDrag, DragTargetType.DraggableWindow);
 		Messenger.Default.Publish(new RegisterDragTarget(self_DragTarget));
 	}
 
@@ -136,6 +139,9 @@ public class DragableUIWindow : SerializedMonoBehaviour
 		button.AllowMultipleClicks = false;
 		button.DisableButtonBetweenClicksInterval = 1f;
 		button.ButtonName = buttonGo.name;
+		var colors = button.Button.colors;
+		colors.highlightedColor = Color.red;
+		button.Button.colors = colors;
 	}
 
 	private void CreateEditButton()
@@ -150,13 +156,16 @@ public class DragableUIWindow : SerializedMonoBehaviour
 		buttonTransform.anchorMin = new Vector2(0f, 1f);
 		buttonTransform.anchoredPosition3D = new Vector3(4f, -4f, 0f);
 		var buttonImage = buttonGo.AddComponent<Image>();
-		buttonImage.sprite = Resources.Load<Sprite>("EditButton");
+		buttonImage.sprite = CustomEditButtonSprite == null ? Resources.Load<Sprite>("EditButton") : CustomEditButtonSprite;
 		UIButton button = buttonGo.AddComponent<UIButton>();
 		button.OnClick.OnTrigger.Event.AddListener(ExecuteEdit);
 		button.OnClick.Enabled = true;
 		button.AllowMultipleClicks = false;
 		button.DisableButtonBetweenClicksInterval = 1f;
 		button.ButtonName = buttonGo.name;
+		var colors = button.Button.colors;
+		colors.highlightedColor = Color.yellow;
+		button.Button.colors = colors;
 	}
 
 	private void ExecuteEdit()

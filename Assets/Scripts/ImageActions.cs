@@ -19,14 +19,14 @@ public static class ImageActions
         {"Linia profilu (tablica)", ProfileLineTable}
     };
 
-    private static void ProfileLineTable(ImageHolder obj)
+    private static void ProfileLineTable(ImageHolder source)
     {
-        
+        Messenger.Default.Publish(new CreateProfileLineTableEvent(source));
     }
 
-    private static void ProfileLinePlot(ImageHolder obj)
+    private static void ProfileLinePlot(ImageHolder source)
     {
-        
+        Messenger.Default.Publish(new CreateProfileLinePlotEvent(source));
     }
 
 
@@ -49,22 +49,18 @@ public static class ImageActions
         return histogram;
     }
 
-    public static double[] GetProfileLine(ImageHolder source, Vector2 normalizedStart, Vector2 normalizedEnd)
+    public static List<byte> GetProfileLine(ImageHolder source, Vector2 normalizedStart, Vector2 normalizedEnd)
     {
         using Mat mat = GetBlackAndWhiteMat(source);
-        LineIterator iterator = new LineIterator(mat, 
-            new Point(normalizedStart.x * source.Texture.width, normalizedStart.y * source.Texture.height), 
-            new Point(normalizedEnd.x * source.Texture.width, normalizedEnd.y * source.Texture.height));
+        var start = new Point(normalizedStart.x * source.Texture.width, normalizedStart.y * source.Texture.height);
+        var end = new Point(normalizedEnd.x * source.Texture.width, normalizedEnd.y * source.Texture.height);
         
-        double[] profileLine = new double[iterator.ElemSize];
-        var enumerator = iterator.GetEnumerator();
-        for (int i = 0; i < profileLine.Length; i++)
-        {
-            profileLine[i] = enumerator.Current.Value.ToInt32();
-            if (i + 1 < profileLine.Length)
-            {
-                enumerator.MoveNext();
-            }
+        List<byte> profileLine = new List<byte>();
+        foreach (var lip in new LineIterator(mat, start, end)) {
+            // Point p = lip.Pos;
+            // Use appropriate type for generic GetValue<of T>().
+            byte v = lip.GetValue<byte>();
+            profileLine.Add(v);
         }
 
         return profileLine;

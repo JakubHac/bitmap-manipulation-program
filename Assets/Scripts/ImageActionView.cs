@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using DG.Tweening;
 using Doozy.Engine.UI;
@@ -20,6 +21,7 @@ public class ImageActionView : MonoBehaviour
 	private void Start()
 	{
 		Messenger.Default.Subscribe<EditImageHolder>(OnEditImageHolder);
+		SearchField.onValueChanged.AddListener(OnSearchFieldChanged);
 
 		foreach (var actionName in ImageActions.Actions.Keys.OrderBy(x => x))
 		{
@@ -36,13 +38,28 @@ public class ImageActionView : MonoBehaviour
 		}
 	}
 
+	private void OnSearchFieldChanged(string arg0)
+	{
+		FilterActions();
+	}
+
+	private void FilterActions()
+	{
+		foreach (var button in ButtonsParent.GetComponentsInChildren<UIButton>(includeInactive: true))
+		{
+			button.gameObject.SetActive(button.TextMeshProLabel.text.Contains(SearchField.text, StringComparison.OrdinalIgnoreCase));
+		}
+	}
+
 	private void OnEditImageHolder(EditImageHolder obj)
 	{
 		SelectedHolder = obj.ImageHolder;
 		ImagePreview.texture = SelectedHolder.Texture;
+		ImagePreview.texture.filterMode = FilterMode.Point;
 		ImagePreviewFitter.aspectRatio = (float)SelectedHolder.Texture.width / SelectedHolder.Texture.height;
 		SearchField.text = string.Empty;
 		View.Show();
+		FilterActions();
 	}
 
 	public void OnClose()

@@ -1,18 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class CreateProfileLineTableEvent : MonoBehaviour
+public class CreateProfileLineTableEvent
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public ImageHolder ImageHolder;
 
-    // Update is called once per frame
-    void Update()
+    public CreateProfileLineTableEvent(ImageHolder imageHolder)
     {
-        
+        ImageHolder = imageHolder;
     }
 }

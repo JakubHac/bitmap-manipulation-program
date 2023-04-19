@@ -6,7 +6,9 @@ using UnityEngine.UI;
 public class ImageReplaceOrNewHandler : MonoBehaviour
 {
     [SerializeField] private RawImage OldImage;
+    [SerializeField] private AspectRatioFitter OldImageAspectRatioFitter;
     [SerializeField] private RawImage NewImage;
+    [SerializeField] private AspectRatioFitter NewImageAspectRatioFitter;
     [SerializeField] private UIView ReplaceView;
     
 
@@ -22,8 +24,12 @@ public class ImageReplaceOrNewHandler : MonoBehaviour
     {
        OldImage.texture = newOrReplace.OldTexture;
        NewImage.texture = newOrReplace.NewTexture;
+       OldImage.texture.filterMode = FilterMode.Point;
+       NewImage.texture.filterMode = FilterMode.Point;
        NewImageName = newOrReplace.NewName;
        CurrentImageHolder = newOrReplace.CurrentImageHolder;
+       OldImageAspectRatioFitter.aspectRatio = (float)OldImage.texture.width / OldImage.texture.height;
+       NewImageAspectRatioFitter.aspectRatio = (float)NewImage.texture.width / NewImage.texture.height;
        ReplaceView.Show();
     }
 

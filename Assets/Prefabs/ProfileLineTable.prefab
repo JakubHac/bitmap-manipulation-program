@@ -49,9 +49,9 @@ GameObject:
   - component: {fileID: 4341548942077262914}
   - component: {fileID: 2935987458294888888}
   - component: {fileID: 6339650116112118767}
-  - component: {fileID: 9214494203567735435}
+  - component: {fileID: 7214368993457640035}
   m_Layer: 0
-  m_Name: HistogramTable
+  m_Name: ProfileLineTable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -137,11 +137,24 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  IncludeEditButton: 0
+  IncludeEditButton: 1
   OnEditButton:
     m_PersistentCalls:
-      m_Calls: []
---- !u!114 &9214494203567735435
+      m_Calls:
+      - m_Target: {fileID: 7214368993457640035}
+        m_TargetAssemblyTypeName: ProfileLineTableHolder, Assembly-CSharp
+        m_MethodName: RequestProfileLineUpdate
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  CustomEditButtonSprite: {fileID: 21300000, guid: 8cd55c5b366c4574d93e99269b8a01d9, type: 3}
+--- !u!114 &7214368993457640035
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -150,7 +163,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2362195487521306574}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b266392fe4da8214da740f015938d319, type: 3}
+  m_Script: {fileID: 11500000, guid: a32299cf17efa7446b3a3a74bfc9f6e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ContentTransform: {fileID: 3963152792946131178}

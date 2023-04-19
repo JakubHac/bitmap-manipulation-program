@@ -25,6 +25,7 @@ public class ImageHolder : SerializedMonoBehaviour
 			else
 			{
 				Image.texture = value;
+				value.filterMode = FilterMode.Point;
 				GetComponent<RectTransform>().sizeDelta = new Vector2(Texture.width, Texture.height);
 				OnTextureUpdated?.Invoke();
 			}

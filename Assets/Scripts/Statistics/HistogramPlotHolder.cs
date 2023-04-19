@@ -22,7 +22,13 @@ public class HistogramPlotHolder : MonoBehaviour
 
 	private void DestroySelf()
 	{
-		GetComponent<DragableUIWindow>().ExecuteClose();
+		if (this != null)
+		{
+			if (GetComponent<DragableUIWindow>() is { } dragableUIWindow) 
+			{
+				dragableUIWindow.ExecuteClose();
+			}
+		}
 	}
 
 	private void OnDestroy()
@@ -40,8 +46,6 @@ public class HistogramPlotHolder : MonoBehaviour
 		var window = GetComponent<DragableUIWindow>();
 		var imageHolderWindow = ImageHolder.GetComponent<DragableUIWindow>();
 		plot.RemoveChartComponent<Title>();
-		//plot.EnsureChartComponent<Title>().text = imageHolderWindow.WindowTitle;
-		//plot.EnsureChartComponent<Title>().subText = window.WindowTitle;
 		window.WindowTitle = $"Histogram {imageHolderWindow.WindowTitle}";
         
 		var yAxis = plot.EnsureChartComponent<YAxis>();
