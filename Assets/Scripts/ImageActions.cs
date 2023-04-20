@@ -52,8 +52,8 @@ public static class ImageActions
     public static List<byte> GetProfileLine(ImageHolder source, Vector2 normalizedStart, Vector2 normalizedEnd)
     {
         using Mat mat = GetBlackAndWhiteMat(source);
-        var start = new Point(normalizedStart.x * source.Texture.width, normalizedStart.y * source.Texture.height);
-        var end = new Point(normalizedEnd.x * source.Texture.width, normalizedEnd.y * source.Texture.height);
+        var start = new Point(normalizedStart.x * source.Texture.width,  (1f - normalizedStart.y) * source.Texture.height);
+        var end = new Point(normalizedEnd.x * source.Texture.width,  (1f - normalizedEnd.y) * source.Texture.height);
         
         List<byte> profileLine = new List<byte>();
         foreach (var lip in new LineIterator(mat, start, end)) {
