@@ -4,20 +4,115 @@ using System.Linq;
 using OpenCvSharp;
 using SuperMaxim.Messaging;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 
 public static class ImageActions
 {
     public static readonly IReadOnlyDictionary<string, Action<ImageHolder>> Actions = new Dictionary<string, Action<ImageHolder>>()
     {
-        {"Odcienie Szarości", ToBlackAndWhite},
+        {"Odcienie szarości", ToBlackAndWhite},
         {"Podziel na RGB", SplitRGB},
         {"Podziel na HSV", SplitHSV},
         {"Podziel na LAB", SplitLAB},
         {"Histogram (wykres)", HistogramPlot},
         {"Histogram (tablica)", HistogramTable},
         {"Linia profilu (wykres)", ProfileLinePlot},
-        {"Linia profilu (tablica)", ProfileLineTable}
+        {"Linia profilu (tablica)", ProfileLineTable},
+        {"Rozciąganie histogramu", StretchHistogram},
+        {"Equalizacja histogramu", EqualizeHistogram},
+        {"Duplikacja", Duplicate}
     };
+
+    private static void Duplicate(ImageHolder source)
+    {
+        Texture2D newTexture = new Texture2D(source.Texture.width, source.Texture.height, source.Texture.format, false);
+        Graphics.CopyTexture(source.Texture, newTexture);
+        var window = source.GetComponent<DragableUIWindow>();
+        ImageLoader.Instance.SpawnWithTexture(newTexture, window.WindowColor, window.WindowTitle);
+    }
+
+    private static void EqualizeHistogram(ImageHolder source)
+    {
+        var cumulativeDistribution = CumulativeDistribution(GetHistogram(source), 255.0);
+        
+        Texture2D texture = new Texture2D(source.Texture.width, source.Texture.height, source.Texture.format, false);
+        Graphics.CopyTexture(source.Texture, texture);
+        for (int i = 0; i < texture.width; i++)
+        {
+            for (int j = 0; j < texture.height; j++)
+            {
+                var pixel = GetTexturePixelValue(texture, i, j);
+                var newPixelValue = cumulativeDistribution[pixel];
+                Color newPixelColor = new Color((float)(newPixelValue / 255.0), (float)(newPixelValue / 255.0), (float)(newPixelValue / 255.0));
+                texture.SetPixel(i, j, newPixelColor);
+            }
+        }
+        texture.Apply();
+        
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Equalizacja histogramu"));
+    }
+
+    private static double[] CumulativeDistribution(double[] input, double? normalizedMax = null)
+    {
+        double sum = 0;
+        double[] output = new double[input.Length];
+        for (int i = 0; i < input.Length; i++)
+        {
+            sum += input[i];
+            output[i] = sum;
+        }
+
+        if (normalizedMax == null) return output;
+        for (int i = 0; i < output.Length; i++)
+        {
+            output[i] = output[i] / sum * normalizedMax.Value;
+        }
+
+        return output;
+    }
+
+    private static void StretchHistogram(ImageHolder source)
+    {
+        Texture2D texture = new Texture2D(source.Texture.width, source.Texture.height, source.Texture.format, false);
+        Graphics.CopyTexture(source.Texture, texture);
+        int oldMin = GetTexturePixelValue(texture, 0, 0);
+        int oldMax = GetTexturePixelValue(texture, 0, 0);
+        for (int i = 0; i < texture.width; i++)
+        {
+            for (int j = 0; j < texture.height; j++)
+            {
+                var pixel = GetTexturePixelValue(texture, i, j);
+                if (pixel < oldMin)
+                {
+                    oldMin = pixel;
+                }
+
+                if (pixel > oldMax)
+                {
+                    oldMax = pixel;
+                }
+            }
+        }
+        
+        float newMin = 0f;
+        float newMax = 255f;
+
+        for (int i = 0; i < texture.width; i++)
+        {
+            for (int j = 0; j < texture.height; j++)
+            {
+                var pixel = GetTexturePixelValue(texture, i, j);
+                float oldLerp = Mathf.InverseLerp(oldMin, oldMax, pixel);
+                float newPixel = Mathf.Lerp(newMin, newMax, oldLerp);
+                float newColorValue = newPixel / 255f;
+                Color newPixelColor = new Color(newColorValue, newColorValue, newColorValue, 1f);
+                texture.SetPixel(i, j, newPixelColor);
+            }
+        }
+        texture.Apply();
+        
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Rozciągnięcie histogramu"));
+    }
 
     private static void ProfileLineTable(ImageHolder source)
     {
@@ -39,14 +134,20 @@ public static class ImageActions
         {
             for (int j = 0; j < texture.height; j++)
             {
-                var pixel = texture.GetPixel(i, j);
-                float avg = (pixel.r + pixel.g + pixel.b) * UnityColorToHistogramAverage;
-                int gray = Mathf.RoundToInt(avg);
+                var gray = GetTexturePixelValue(texture, i, j);
                 histogram[gray]++;
             }
         }
 
         return histogram;
+    }
+
+    private static int GetTexturePixelValue(Texture2D texture, int i, int j)
+    {
+        var pixel = texture.GetPixel(i, j);
+        float avg = (pixel.r + pixel.g + pixel.b) * UnityColorToHistogramAverage;
+        int gray = Mathf.RoundToInt(avg);
+        return gray;
     }
 
     public static List<byte> GetProfileLine(ImageHolder source, Vector2 normalizedStart, Vector2 normalizedEnd)
@@ -57,8 +158,6 @@ public static class ImageActions
         
         List<byte> profileLine = new List<byte>();
         foreach (var lip in new LineIterator(mat, start, end)) {
-            // Point p = lip.Pos;
-            // Use appropriate type for generic GetValue<of T>().
             byte v = lip.GetValue<byte>();
             profileLine.Add(v);
         }
@@ -115,7 +214,7 @@ public static class ImageActions
         Cv2.Split(mat, out Mat[] channels);
         for (int i = 0; i < channels.Length; i++)
         {
-            Texture2D texture = OpenCvSharp.Unity.MatToTexture(channels[i]);
+            Texture2D texture = MatToTexture(channels[i]);
             if (colors == null && titles == null)
             {
                 ImageLoader.Instance.SpawnWithTexture(texture);
@@ -144,10 +243,17 @@ public static class ImageActions
         return grayMat;
     }
     
+    private static Texture2D MatToTexture(Mat mat)
+    {
+        Texture2D texture = new Texture2D(mat.Width, mat.Height, DefaultFormat.LDR, 0, TextureCreationFlags.None);
+        OpenCvSharp.Unity.MatToTexture(mat, texture);
+        return texture;
+    }
+    
     private static void ToBlackAndWhite(ImageHolder source)
     {
         using var mat = GetBlackAndWhiteMat(source);
-        Texture2D texture = OpenCvSharp.Unity.MatToTexture(mat);
-        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Odcienie Szarości"));
+        Texture2D texture = MatToTexture(mat);
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Odcienie szarości"));
     }
 }

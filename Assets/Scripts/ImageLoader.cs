@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using SimpleFileBrowser;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using Color = UnityEngine.Color;
 
 public class ImageLoader : MonoBehaviour
@@ -60,8 +61,8 @@ public class ImageLoader : MonoBehaviour
     {
         using MemoryStream stream = new MemoryStream();
         bitmap.Save(stream, ImageFormat.Png);
-        Texture2D texture = new Texture2D(2, 2);
-        texture.LoadImage(stream.ToArray());
+        Texture2D texture = new Texture2D(2, 2, DefaultFormat.LDR, 1, TextureCreationFlags.None);
+        texture.LoadImage(stream.ToArray(), false);
         SpawnWithTexture(texture, title: title);
     }
 
