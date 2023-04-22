@@ -20,63 +20,136 @@ public static class ImageActions
         {"Linia profilu (tablica)", ProfileLineTable},
         {"Rozciąganie histogramu", StretchHistogram},
         {"Equalizacja histogramu", EqualizeHistogram},
-        {"Duplikacja", Duplicate}
+        {"Duplikacja", Duplicate},
+        {"Negacja", Negate},
+        {"Posteryzacja", Posterize}
     };
+
+    private static void Posterize(ImageHolder source)
+    {
+        
+    }
+
+
+    private static void Negate(ImageHolder source)
+    {
+        byte[] negateLUT = Enumerable.Range(0, 256).Select(x => (byte)(255 - x)).ToArray();
+        var texture = DuplicateTexture(source);
+        ApplyLUT(texture, negateLUT);
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Negacja"));
+    }
 
     private static void Duplicate(ImageHolder source)
     {
-        Texture2D newTexture = new Texture2D(source.Texture.width, source.Texture.height, source.Texture.format, false);
-        Graphics.CopyTexture(source.Texture, newTexture);
+        var newTexture = DuplicateTexture(source);
         var window = source.GetComponent<DragableUIWindow>();
         ImageLoader.Instance.SpawnWithTexture(newTexture, window.WindowColor, window.WindowTitle);
     }
 
+    private static Texture2D DuplicateTexture(ImageHolder source)
+    {
+        Texture2D newTexture = new Texture2D(source.Texture.width, source.Texture.height, source.Texture.format, false);
+        Graphics.CopyTexture(source.Texture, newTexture);
+        return newTexture;
+    }
+
     private static void EqualizeHistogram(ImageHolder source)
     {
-        var cumulativeDistribution = CumulativeDistribution(GetHistogram(source), 255.0);
+        var cumulativeDistribution = NormalizedCumulativeDistribution(GetHistogram(source));
         
-        Texture2D texture = new Texture2D(source.Texture.width, source.Texture.height, source.Texture.format, false);
-        Graphics.CopyTexture(source.Texture, texture);
+        Texture2D texture = DuplicateTexture(source);
+        ApplyLUT(texture, cumulativeDistribution);
+
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Equalizacja histogramu"));
+    }
+
+    private static void ApplyLUT(Texture2D texture, double[] lut)
+    {
         for (int i = 0; i < texture.width; i++)
         {
             for (int j = 0; j < texture.height; j++)
             {
                 var pixel = GetTexturePixelValue(texture, i, j);
-                var newPixelValue = cumulativeDistribution[pixel];
-                Color newPixelColor = new Color((float)(newPixelValue / 255.0), (float)(newPixelValue / 255.0), (float)(newPixelValue / 255.0));
+                var newPixelValue = lut[pixel];
+                var newPixelColorValue = (float)(newPixelValue / 255.0);
+                Color newPixelColor = new Color(newPixelColorValue, newPixelColorValue, newPixelColorValue);
                 texture.SetPixel(i, j, newPixelColor);
             }
         }
+
         texture.Apply();
-        
-        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Equalizacja histogramu"));
+    }
+    
+    private static void ApplyLUT(Texture2D texture, float[] lut)
+    {
+        for (int i = 0; i < texture.width; i++)
+        {
+            for (int j = 0; j < texture.height; j++)
+            {
+                var pixel = GetTexturePixelValue(texture, i, j);
+                var newPixelValue = lut[pixel];
+                var newPixelColorValue = (newPixelValue / 255.0f);
+                Color newPixelColor = new Color(newPixelColorValue, newPixelColorValue, newPixelColorValue);
+                texture.SetPixel(i, j, newPixelColor);
+            }
+        }
+
+        texture.Apply();
+    }
+    
+    private static void ApplyLUT(Texture2D texture, byte[] lut)
+    {
+        for (int i = 0; i < texture.width; i++)
+        {
+            for (int j = 0; j < texture.height; j++)
+            {
+                var pixel = GetTexturePixelValue(texture, i, j);
+                var newPixelValue = lut[pixel];
+                var newPixelColorValue = (newPixelValue / 255.0f);
+                Color newPixelColor = new Color(newPixelColorValue, newPixelColorValue, newPixelColorValue);
+                texture.SetPixel(i, j, newPixelColor);
+            }
+        }
+
+        texture.Apply();
     }
 
-    private static double[] CumulativeDistribution(double[] input, double? normalizedMax = null)
+    private static byte[] NormalizedCumulativeDistribution(byte[] input)
     {
         double sum = 0;
-        double[] output = new double[input.Length];
+        double[] cumulativeSum = new double[input.Length];
+        for (int i = 0; i < input.Length; i++)
+        {
+            sum += input[i];
+            cumulativeSum[i] = sum;
+        }
+        
+        byte[] output = new byte[256];
+        for (int i = 0; i < output.Length; i++)
+        {
+            output[i] = (byte)(cumulativeSum[i] / sum * 255.0);
+        }
+
+        return output;
+    }
+    
+    private static long[] CumulativeDistribution(byte[] input)
+    {
+        long sum = 0;
+        long[] output = new long[input.Length];
         for (int i = 0; i < input.Length; i++)
         {
             sum += input[i];
             output[i] = sum;
         }
-
-        if (normalizedMax == null) return output;
-        for (int i = 0; i < output.Length; i++)
-        {
-            output[i] = output[i] / sum * normalizedMax.Value;
-        }
-
         return output;
     }
 
     private static void StretchHistogram(ImageHolder source)
     {
-        Texture2D texture = new Texture2D(source.Texture.width, source.Texture.height, source.Texture.format, false);
-        Graphics.CopyTexture(source.Texture, texture);
-        int oldMin = GetTexturePixelValue(texture, 0, 0);
-        int oldMax = GetTexturePixelValue(texture, 0, 0);
+        Texture2D texture = DuplicateTexture(source);
+        var oldMin = GetTexturePixelValue(texture, 0, 0);
+        var oldMax = GetTexturePixelValue(texture, 0, 0);
         for (int i = 0; i < texture.width; i++)
         {
             for (int j = 0; j < texture.height; j++)
@@ -93,23 +166,14 @@ public static class ImageActions
                 }
             }
         }
-        
-        float newMin = 0f;
-        float newMax = 255f;
 
-        for (int i = 0; i < texture.width; i++)
+        float[] lut = new float[256];
+        for (int i = 0; i < 256; i++)
         {
-            for (int j = 0; j < texture.height; j++)
-            {
-                var pixel = GetTexturePixelValue(texture, i, j);
-                float oldLerp = Mathf.InverseLerp(oldMin, oldMax, pixel);
-                float newPixel = Mathf.Lerp(newMin, newMax, oldLerp);
-                float newColorValue = newPixel / 255f;
-                Color newPixelColor = new Color(newColorValue, newColorValue, newColorValue, 1f);
-                texture.SetPixel(i, j, newPixelColor);
-            }
+            lut[i] = Mathf.Lerp(0f, 255f, Mathf.InverseLerp(oldMin, oldMax, i));
         }
-        texture.Apply();
+        
+        ApplyLUT(texture, lut);
         
         Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Rozciągnięcie histogramu"));
     }
@@ -126,9 +190,9 @@ public static class ImageActions
 
 
     private const float UnityColorToHistogramAverage = 255f / 3f;
-    public static double[] GetHistogram(ImageHolder imageHolder)
+    public static byte[] GetHistogram(ImageHolder imageHolder)
     {
-        double[] histogram = new double[256];
+        byte[] histogram = new byte[256];
         var texture = imageHolder.Texture;
         for (int i = 0; i < texture.width; i++)
         {
@@ -142,11 +206,33 @@ public static class ImageActions
         return histogram;
     }
 
-    private static int GetTexturePixelValue(Texture2D texture, int i, int j)
+    private enum FloatPixelTextureValueMode
+    {
+        Sum,
+        Avg,
+        To255Max
+    }
+    
+    private static float GetFloatTexturePixelValue(Texture2D texture, int i, int j, FloatPixelTextureValueMode mode)
     {
         var pixel = texture.GetPixel(i, j);
-        float avg = (pixel.r + pixel.g + pixel.b) * UnityColorToHistogramAverage;
-        int gray = Mathf.RoundToInt(avg);
+        float output = (pixel.r + pixel.g + pixel.b);
+        switch (mode)
+        {
+            case FloatPixelTextureValueMode.Avg:
+                output /= 3f;
+                break;
+            case FloatPixelTextureValueMode.To255Max:
+                output *= UnityColorToHistogramAverage;
+                break;
+        }
+
+        return output;
+    }
+
+    private static byte GetTexturePixelValue(Texture2D texture, int i, int j)
+    {
+        byte gray = (byte)Mathf.RoundToInt(GetFloatTexturePixelValue(texture, i, j, FloatPixelTextureValueMode.To255Max));
         return gray;
     }
 
