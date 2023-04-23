@@ -22,12 +22,38 @@ public static class ImageActions
         {"Equalizacja histogramu", EqualizeHistogram},
         {"Duplikacja", Duplicate},
         {"Negacja", Negate},
-        {"Posteryzacja", Posterize}
+        {"Posteryzacja", HandlePosterize}
     };
 
-    private static void Posterize(ImageHolder source)
+    private static void HandlePosterize(ImageHolder source)
     {
+        Messenger.Default.Publish(new PosterizeRequest(source));
+    }
+
+    public static Texture2D PosterizeTexture(ImageHolder input, int posterizeLevel)
+    {
+        var texture = DuplicateTexture(input);
+
+        byte[] posterizeLUT = null;
+        if (posterizeLevel > 1)
+        {
+            double p = posterizeLevel;
+            posterizeLUT = Enumerable.Range(0, 256).Select(xInt =>
+            {
+                double x = xInt;
+                double val = (x - x % (255.0 / p)) * (p / (p - 1.0));
+                return (byte)Math.Round(Math.Clamp(val, 0.0, 255.0));
+            }).ToArray();
+        }
+        else
+        {
+            posterizeLUT = Enumerable.Range(0, 256).Select(x => (byte)128).ToArray();
+        }
         
+        
+        ApplyLUT(texture, posterizeLUT);
+
+        return texture;
     }
 
 
