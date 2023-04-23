@@ -49,7 +49,9 @@ public class HistogramPlotHolder : MonoBehaviour
 		window.WindowTitle = $"Histogram {imageHolderWindow.WindowTitle}";
         
 		var yAxis = plot.EnsureChartComponent<YAxis>();
-		yAxis.minMaxType = Axis.AxisMinMaxType.Default;
+		yAxis.minMaxType = Axis.AxisMinMaxType.Custom;
+		yAxis.min = 0;
+		yAxis.max = 255;
         
 		plot.RemoveData();
 		var serie = plot.AddSerie<Bar>("Wartość");

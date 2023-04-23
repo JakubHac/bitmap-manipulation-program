@@ -22,8 +22,14 @@ public static class ImageActions
         {"Equalizacja histogramu", EqualizeHistogram},
         {"Duplikacja", Duplicate},
         {"Negacja", Negate},
-        {"Posteryzacja", HandlePosterize}
+        {"Posteryzacja", HandlePosterize},
+        {"Selektywne rozciąganie", HandleSelectiveStretch}
     };
+
+    private static void HandleSelectiveStretch(ImageHolder source)
+    {
+        Messenger.Default.Publish(new SelectiveStretchRequest(source));
+    }
 
     private static void HandlePosterize(ImageHolder source)
     {
@@ -367,5 +373,10 @@ public static class ImageActions
         using var mat = GetBlackAndWhiteMat(source);
         Texture2D texture = MatToTexture(mat);
         Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Odcienie szarości"));
+    }
+
+    public static Texture2D SelectiveStretchTexture(Texture2D sourceTexture, int p1, int p2, int q3, int q4)
+    {
+        throw new NotImplementedException();
     }
 }

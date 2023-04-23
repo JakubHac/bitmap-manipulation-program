@@ -12,7 +12,7 @@ public class PosterizeView : MonoBehaviour
     [SerializeField] private RawImage TargetImage;
     [SerializeField] private AspectRatioFitter TargetAspectRatioFitter;
 
-    private Queue<PosterizeRequest> RequestQueue = new Queue<PosterizeRequest>();
+    private Queue<PosterizeRequest> RequestQueue = new();
     private PosterizeRequest CurrentRequest;
     private ImageHolder source => CurrentRequest.Source;
     private int posterizationValue;
