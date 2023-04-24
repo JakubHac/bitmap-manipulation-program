@@ -23,8 +23,17 @@ public static class ImageActions
         {"Duplikacja", Duplicate},
         {"Negacja", Negate},
         {"Posteryzacja", HandlePosterize},
-        {"Selektywne rozciąganie", HandleSelectiveStretch}
+        {"Selektywne rozciąganie", HandleSelectiveStretch},
+        {"Konwolucja (własna maska)", (x) => HandleConvolve(new ConvolutionRequest(x))},
+        {"Konwolucja (wygładzenie)", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionBlurType.Gauss))},
+        {"Konwolucja (detekcja krawędzi)", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionEdgeDetectMethod.Sobel, ConvolutionEdgeDetectDirection.North))},
+        {"Konwolucja (wyostrzenie)", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionSharpenType.Laplacian1))}
     };
+
+    private static void HandleConvolve(ConvolutionRequest convolutionRequest)
+    {
+        Messenger.Default.Publish(convolutionRequest);
+    }
 
     private static void HandleSelectiveStretch(ImageHolder source)
     {
@@ -388,5 +397,30 @@ public static class ImageActions
         var duplicateTexture = DuplicateTexture(source);
         ApplyLUT(duplicateTexture, lut);
         return duplicateTexture;
+    }
+    
+    public static Texture2D ConvolveTexture(ImageHolder source, double[,] kernel, BorderTypes borderType)
+    {
+        using InputArray kernelArray = InputArray.Create(kernel);
+        using Mat inputMat = GetBlackAndWhiteMat(source);
+        using Mat outputMat = new();
+        Cv2.Filter2D(inputMat, outputMat, MatType.MakeType(8, 1), kernelArray, borderType: borderType);
+        return MatToTexture(outputMat);
+    }
+    
+    public static Texture2D CannyEdgeTexture(ImageHolder source, int threshold1, int threshold2)
+    {
+        using Mat inputMat = GetBlackAndWhiteMat(source);
+        using Mat outputMat = new();
+        Cv2.Canny(inputMat, outputMat, threshold1, threshold2);
+        return MatToTexture(outputMat);
+    }
+    
+    public static Texture2D MedianTexture(ImageHolder source, int kernelSize)
+    {
+        using Mat inputMat = GetBlackAndWhiteMat(source);
+        using Mat outputMat = new();
+        Cv2.MedianBlur(inputMat, outputMat, kernelSize);
+        return MatToTexture(outputMat);
     }
 }
