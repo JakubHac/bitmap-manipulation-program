@@ -375,8 +375,18 @@ public static class ImageActions
         Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Odcienie szarości"));
     }
 
-    public static Texture2D SelectiveStretchTexture(Texture2D sourceTexture, int p1, int p2, int q3, int q4)
+    public static Texture2D SelectiveStretchTexture(ImageHolder source, int p1, int p2, int q3, int q4)
     {
-        throw new NotImplementedException();
+        byte[] lut = Enumerable.Range(0, 256).Select(x => (byte)x).ToArray();
+        for (int i = p1; i < p2; i++)
+        {
+            float lerp = Mathf.InverseLerp(p1, p2, i);
+            float value = Mathf.Lerp(q3, q4, lerp);
+            lut[i] = (byte)Mathf.RoundToInt(value);
+        }
+
+        var duplicateTexture = DuplicateTexture(source);
+        ApplyLUT(duplicateTexture, lut);
+        return duplicateTexture;
     }
 }

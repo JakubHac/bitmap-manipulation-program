@@ -28,7 +28,7 @@ public class PosterizeView : MonoBehaviour
     private void OnPosterizeValueChanged(string textvalue)
     {
         var posterizeValue = ReadPosterizeValue();
-        if (posterizeValue is {})
+        if (posterizeValue is not null)
         {
             if (posterizationValue != posterizeValue.Value)
             {
