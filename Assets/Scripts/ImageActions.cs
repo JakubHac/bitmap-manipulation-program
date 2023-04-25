@@ -404,6 +404,28 @@ public static class ImageActions
         using InputArray kernelArray = InputArray.Create(kernel);
         using Mat inputMat = GetBlackAndWhiteMat(source);
         using Mat outputMat = new();
+        double kernelSum = 0;
+        for (int i = 0; i < kernel.GetLength(0); i++)
+        {
+            for (int j = 0; j < kernel.GetLength(1); j++)
+            {
+                kernelSum += kernel[i, j];
+            }
+        }
+
+        kernelSum = kernelSum < 0.0 ? -kernelSum : kernelSum;
+        
+        if (kernelSum != 0.0)
+        {
+            for (int i = 0; i < kernel.GetLength(0); i++)
+            {
+                for (int j = 0; j < kernel.GetLength(1); j++)
+                {
+                    kernel[i, j] /= kernelSum;
+                }
+            }
+        }
+        
         Cv2.Filter2D(inputMat, outputMat, MatType.MakeType(inputMat.Depth(), inputMat.Channels()), kernelArray, borderType: borderType);
         return MatToTexture(outputMat);
     }

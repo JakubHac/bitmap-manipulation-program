@@ -59,6 +59,7 @@ public class ConvolutionView : SerializedMonoBehaviour
 	};
 	
 	bool uiChanged = false;
+	bool dropdownChanged = false;
 
 	private void Start()
 	{
@@ -94,12 +95,36 @@ public class ConvolutionView : SerializedMonoBehaviour
 			.Select(ConvolutionDropdowns.GetDropdownValue).ToList());
 		BlurDropdown.RefreshShownValue();
 		
-		OperationDopdown.onValueChanged.AddListener(_ => uiChanged = true);
-		EdgeDetectionMethodDopdown.onValueChanged.AddListener(_ => uiChanged = true);
-		EdgeDetectionDirectionDopdown.onValueChanged.AddListener(_ => uiChanged = true);
-		EdgeDetectionLaplacianDopdown.onValueChanged.AddListener(_ => uiChanged = true);
-		SharpenDropdown.onValueChanged.AddListener(_ => uiChanged = true);
-		BlurDropdown.onValueChanged.AddListener(_ => uiChanged = true);
+		OperationDopdown.onValueChanged.AddListener(_ =>
+		{
+			dropdownChanged = true;
+			uiChanged = true;
+		});
+		EdgeDetectionMethodDopdown.onValueChanged.AddListener(_ =>
+		{
+			dropdownChanged = true;
+			uiChanged = true;
+		});
+		EdgeDetectionDirectionDopdown.onValueChanged.AddListener(_ =>
+		{
+			dropdownChanged = true;
+			uiChanged = true;
+		});
+		EdgeDetectionLaplacianDopdown.onValueChanged.AddListener(_ =>
+		{
+			dropdownChanged = true;
+			uiChanged = true;
+		});
+		SharpenDropdown.onValueChanged.AddListener(_ =>
+		{
+			dropdownChanged = true;
+			uiChanged = true;
+		});
+		BlurDropdown.onValueChanged.AddListener(_ =>
+		{
+			dropdownChanged = true;
+			uiChanged = true;
+		});
 		CannyT1.onValueChanged.AddListener(_ => uiChanged = true);
 		CannyT2.onValueChanged.AddListener(_ => uiChanged = true);
 		CannySobel.onValueChanged.AddListener(_ => uiChanged = true);
@@ -113,6 +138,7 @@ public class ConvolutionView : SerializedMonoBehaviour
 		Messenger.Default.Subscribe<ConvolutionRequest>(AddToQueue);
 		
 		uiChanged = true;
+		dropdownChanged = true;
 	}
 
 	private void SyncValuesWithInputs()
@@ -140,7 +166,9 @@ public class ConvolutionView : SerializedMonoBehaviour
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				TryReadValue(MaskTexts[i, j].text, ref mask[i, j], double.MinValue, double.MaxValue);
+				double value = mask[i, j];
+				TryReadValue(MaskTexts[i, j].text, ref value, double.MinValue, double.MaxValue);
+				mask[i, j] = value;
 			}
 		}
 	}
@@ -153,7 +181,11 @@ public class ConvolutionView : SerializedMonoBehaviour
 		{
 			SyncValuesWithInputs();
 			SyncEnabledInputsWithValues();
-			SyncTextsOnChange();
+			if (dropdownChanged)
+			{
+				SyncTextsOnChange();
+				dropdownChanged = false;
+			}
 			uiChanged = false;
 		}
 	}
@@ -209,18 +241,27 @@ public class ConvolutionView : SerializedMonoBehaviour
 		}
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns>if any changes were made</returns>
 	private void SyncAllInputsToValues()
 	{
-		MaskTextsFromMask();
 		DropdownsFromSelectedValues();
+		MaskTextsFromMask();
 		CannyFromValues();
 	}
 
 	private void CannyFromValues()
 	{
+		double valueInsideText = 0.0;
+		TryReadValue(CannyT1.text, ref valueInsideText, double.MinValue, double.MaxValue);
 		CannyT1.text = CannyT1Value.ToString(CultureInfo.InvariantCulture);
+		TryReadValue(CannyT2.text, ref valueInsideText, double.MinValue, double.MaxValue);
 		CannyT2.text = CannyT2Value.ToString(CultureInfo.InvariantCulture);
-		CannySobel.text = CannySobelSize.ToString(CultureInfo.InvariantCulture);
+		int valueInsideTextInt = 0;
+		TryReadValue(CannySobel.text, ref valueInsideTextInt, int.MinValue, int.MaxValue);
+		CannySobel.text = CannySobelSize.ToString();
 	}
 
 	private void DropdownsFromSelectedValues()
@@ -268,6 +309,8 @@ public class ConvolutionView : SerializedMonoBehaviour
 			for (int j = 0; j < MaskTexts.GetLength(1); j++)
 			{
 				var text = MaskTexts[i, j];
+				double valueInText = 0;
+				TryReadValue(text.text, ref valueInText, double.MinValue, double.MaxValue);
 				text.text = mask[i, j].ToString(CultureInfo.InvariantCulture);
 				text.readOnly = operation != ConvolutionOperation.Custom;
 			}
@@ -310,7 +353,8 @@ public class ConvolutionView : SerializedMonoBehaviour
 	private double? ReadValue(string text, double min, double max)
 	{
 		if (string.IsNullOrEmpty(text)) return null;
-		if (double.TryParse(text, out double value))
+		IFormatProvider formatProvider = new CultureInfo("en-US");
+		if (double.TryParse(text.Replace(",", "."), NumberStyles.Number, formatProvider, out double value))
 		{
 			if (value >= min && value <= max)
 			{
@@ -337,6 +381,7 @@ public class ConvolutionView : SerializedMonoBehaviour
 
 	public void AcceptConvolution()
 	{
+		SyncAllInputsToValues();
 		if (operation == ConvolutionOperation.EdgeDetection && edgeDetectionMethod == ConvolutionEdgeDetectMethod.Canny)
 		{
 			Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture,
@@ -345,10 +390,10 @@ public class ConvolutionView : SerializedMonoBehaviour
 		}
 		else
 		{
-			double[,] mask = GetMask();
+			double[,] kernel = operation == ConvolutionOperation.Custom ? mask : GetMask();
 			Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture,
-				ImageActions.ConvolveTexture(source, mask, BorderType), source,
-				source.GetComponent<DragableUIWindow>().WindowTitle + " - Konsolucja"));
+				ImageActions.ConvolveTexture(source, kernel, BorderType), source,
+				source.GetComponent<DragableUIWindow>().WindowTitle + " - Konwolucja"));
 		}
 
 		CurrentRequest = null;
