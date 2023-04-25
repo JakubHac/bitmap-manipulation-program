@@ -404,15 +404,15 @@ public static class ImageActions
         using InputArray kernelArray = InputArray.Create(kernel);
         using Mat inputMat = GetBlackAndWhiteMat(source);
         using Mat outputMat = new();
-        Cv2.Filter2D(inputMat, outputMat, MatType.MakeType(8, 1), kernelArray, borderType: borderType);
+        Cv2.Filter2D(inputMat, outputMat, MatType.MakeType(inputMat.Depth(), inputMat.Channels()), kernelArray, borderType: borderType);
         return MatToTexture(outputMat);
     }
     
-    public static Texture2D CannyEdgeTexture(ImageHolder source, int threshold1, int threshold2)
+    public static Texture2D CannyEdgeTexture(ImageHolder source, double threshold1, double threshold2, int sobelSize, bool fast)
     {
         using Mat inputMat = GetBlackAndWhiteMat(source);
         using Mat outputMat = new();
-        Cv2.Canny(inputMat, outputMat, threshold1, threshold2);
+        Cv2.Canny(inputMat, outputMat, threshold1, threshold2, sobelSize, !fast);
         return MatToTexture(outputMat);
     }
     

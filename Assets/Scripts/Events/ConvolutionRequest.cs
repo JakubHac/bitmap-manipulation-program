@@ -6,9 +6,7 @@ public class ConvolutionRequest
     public readonly ConvolutionEdgeDetectMethod EdgeDetectMethod;
     public readonly ConvolutionEdgeDetectDirection EdgeDetectDirection;
     public readonly ConvolutionSharpenType SharpenType;
-    public readonly ConvolveLaplacianEdgeDetectionType LaplacianEdgeDetectionType;
-    
-    public double[][] Mask => ConvolutionMasks.GetMaskFromEnums(Operation, BlurType, EdgeDetectMethod, EdgeDetectDirection, SharpenType, LaplacianEdgeDetectionType);
+    public readonly ConvolutionLaplacianEdgeDetectionType LaplacianEdgeDetectionType;
 
     public ConvolutionRequest(ImageHolder source)
     {
@@ -26,7 +24,7 @@ public class ConvolutionRequest
     }
     
     public ConvolutionRequest(ImageHolder source, ConvolutionEdgeDetectMethod edgeDetectMethod,
-        ConvolveLaplacianEdgeDetectionType laplacianEdgeDetectionType)
+        ConvolutionLaplacianEdgeDetectionType laplacianEdgeDetectionType)
     {
         Source = source;
         Operation = ConvolutionOperation.EdgeDetection;
