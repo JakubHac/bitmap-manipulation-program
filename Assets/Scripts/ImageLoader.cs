@@ -65,30 +65,8 @@ public class ImageLoader : MonoBehaviour
 			yield break;
 		}
 
-		var data = Application.platform == RuntimePlatform.Android ? ImportFromIntent(uri) : File.ReadAllBytes(uri);
-
-		// using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
-		// {
-		// 	yield return webRequest.SendWebRequest();
-		//
-		// 	string[] pages = uri.Split('/');
-		// 	int page = pages.Length - 1;
-		//
-		// 	switch (webRequest.result)
-		// 	{
-		// 		case UnityWebRequest.Result.ConnectionError:
-		// 		case UnityWebRequest.Result.DataProcessingError:
-		// 			Debug.LogError(pages[page] + ": Error: " + webRequest.error);
-		// 			break;
-		// 		case UnityWebRequest.Result.ProtocolError:
-		// 			Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
-		// 			break;
-		// 		case UnityWebRequest.Result.Success:
-		// 			Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.data.Length);
-		// 			data = webRequest.downloadHandler.data;
-		// 			break;
-		// 	}
-		// }
+		var data = FileBrowserHelpers.ReadBytesFromFile(uri);
+		
 		Texture2D tex = new Texture2D(2, 2);
 
 		switch (extension)
@@ -103,8 +81,6 @@ public class ImageLoader : MonoBehaviour
 				{
 					tex = ImageActions.MatToTexture(mat);
 				}
-
-				;
 				break;
 			case ".gif":
 				break;
