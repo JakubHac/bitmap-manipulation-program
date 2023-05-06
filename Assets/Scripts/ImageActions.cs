@@ -370,7 +370,7 @@ public static class ImageActions
         return grayMat;
     }
     
-    private static Texture2D MatToTexture(Mat mat)
+    public static Texture2D MatToTexture(Mat mat)
     {
         Texture2D texture = new Texture2D(mat.Width, mat.Height, DefaultFormat.LDR, 0, TextureCreationFlags.None);
         OpenCvSharp.Unity.MatToTexture(mat, texture);
