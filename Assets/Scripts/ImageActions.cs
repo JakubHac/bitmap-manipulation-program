@@ -27,8 +27,14 @@ public static class ImageActions
         {"Konwolucja", (x) => HandleConvolve(new ConvolutionRequest(x))},
         {"Wygładzanie", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionBlurType.Gauss))},
         {"Detekcja krawędzi", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionEdgeDetectMethod.Canny, ConvolutionEdgeDetectDirection.North))},
-        {"Wyostrzenie", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionSharpenType.Laplacian1))}
+        {"Wyostrzenie", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionSharpenType.Laplacian1))},
+        {"Filtr medianowy", HandleMedian}
     };
+
+    private static void HandleMedian(ImageHolder obj)
+    {
+        Messenger.Default.Publish(new MedianFilterRequest(obj));
+    }
 
     private static void HandleConvolve(ConvolutionRequest convolutionRequest)
     {
