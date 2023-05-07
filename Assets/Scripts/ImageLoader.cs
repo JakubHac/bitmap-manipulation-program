@@ -97,55 +97,13 @@ public class ImageLoader : MonoBehaviour
 		StartCoroutine(LoadFromURI(path));
 	}
 
-
-	private byte[] ImportFromIntent(string importPath)
-	{
-		byte[] data = null;
-		try
-		{
-			// Get the current activity
-			AndroidJavaClass unityPlayerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-			AndroidJavaObject activityObject = unityPlayerClass.GetStatic<AndroidJavaObject>("currentActivity");
-
-			// Get the current intent
-			AndroidJavaObject intent = activityObject.Call<AndroidJavaObject>("getIntent");
-
-			// Get the intent data using AndroidJNI.CallObjectMethod so we can check for null
-			//IntPtr method_getData = AndroidJNIHelper.GetMethodID(intent.GetRawClass(), "getData", "()Ljava/lang/Object;");
-			// IntPtr getDataResult = AndroidJNI.CallObjectMethod(intent.GetRawObject(), method_getData, AndroidJNIHelper.CreateJNIArgArray(new object[0]));
-			// if (getDataResult.ToInt32() != 0)
-			// {
-				// Now actually get the data. We should be able to get it from the result of AndroidJNI.CallObjectMethod, but I don't know how so just call again
-				AndroidJavaObject intentURI = intent.Call<AndroidJavaObject>("getData");
-
-				// Open the URI as an input channel
-				AndroidJavaObject contentResolver = activityObject.Call<AndroidJavaObject>("getContentResolver");
-				AndroidJavaObject inputStream = contentResolver.Call<AndroidJavaObject>("openInputStream", intentURI);
-				
-				//Read
-				data = inputStream.Call<byte[]>("readAllBytes");
-				
-				Debug.Log($"Read {data.Length} bytes from {importPath}");
-
-				// Close the stream
-				inputStream.Call("close");
-			// }
-			// else
-			// {
-			// 	Debug.LogError("getDataResult was null");
-			// }
-		}
-		catch (System.Exception ex)
-		{
-			// Handle error
-		}
-
-		return data;
-	}
-
 	public void SpawnWithTexture(Texture2D texture, Color? color = null, string title = null)
 	{
 		GameObject imageHolder = Instantiate(ImageHolderPrefab, ImagesParent);
+		
+		texture.wrapMode = TextureWrapMode.Clamp;
+		texture.filterMode = FilterMode.Point;
+		
 		imageHolder.GetComponent<ImageHolder>().Texture = texture;
 		imageHolder.GetComponent<RectTransform>().localPosition = Vector3.zero;
 		var window = imageHolder.GetComponent<DragableUIWindow>();

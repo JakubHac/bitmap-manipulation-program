@@ -40,7 +40,7 @@ public class ImageReplaceOrNewHandler : MonoBehaviour
 
     public void OnReplace()
     {
-	    CurrentImageHolder.ReplaceTexture((Texture2D)NewImage.texture);
+	    CurrentImageHolder.Texture = (Texture2D)NewImage.texture;
 	    ReplaceView.Hide();
     }
 
