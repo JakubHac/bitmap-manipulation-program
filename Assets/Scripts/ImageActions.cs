@@ -24,10 +24,10 @@ public static class ImageActions
         {"Negacja", Negate},
         {"Posteryzacja", HandlePosterize},
         {"Selektywne rozciąganie", HandleSelectiveStretch},
-        {"Konwolucja (własna maska)", (x) => HandleConvolve(new ConvolutionRequest(x))},
-        {"Konwolucja (wygładzenie)", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionBlurType.Gauss))},
-        {"Konwolucja (detekcja krawędzi)", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionEdgeDetectMethod.Sobel, ConvolutionEdgeDetectDirection.North))},
-        {"Konwolucja (wyostrzenie)", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionSharpenType.Laplacian1))}
+        {"Konwolucja", (x) => HandleConvolve(new ConvolutionRequest(x))},
+        {"Wygładzanie", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionBlurType.Gauss))},
+        {"Detekcja krawędzi", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionEdgeDetectMethod.Canny, ConvolutionEdgeDetectDirection.North))},
+        {"Wyostrzenie", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionSharpenType.Laplacian1))}
     };
 
     private static void HandleConvolve(ConvolutionRequest convolutionRequest)
@@ -401,6 +401,8 @@ public static class ImageActions
     
     public static Texture2D ConvolveTexture(ImageHolder source, double[,] kernel, BorderTypes borderType)
     {
+        Debug.Log("filtering image with kernel: " + kernel.ToString() + " and border type: " + borderType.ToString());
+        
         using InputArray kernelArray = InputArray.Create(kernel);
         using Mat inputMat = GetBlackAndWhiteMat(source);
         using Mat outputMat = new();

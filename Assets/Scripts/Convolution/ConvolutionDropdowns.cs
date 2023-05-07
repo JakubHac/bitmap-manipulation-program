@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OpenCvSharp;
 
 public static class ConvolutionDropdowns
 {
@@ -58,12 +59,23 @@ public static class ConvolutionDropdowns
             { ConvolutionBlurType.Gauss, "Gauss"}
         };
 
+    private static readonly IReadOnlyDictionary<BorderTypes, string> BorderTypes =
+        new Dictionary<BorderTypes, string>()
+        {
+            {OpenCvSharp.BorderTypes.Isolated, "Izolacja"},
+            {OpenCvSharp.BorderTypes.Replicate, "Powielenie (abc|ccc)"},
+            {OpenCvSharp.BorderTypes.Reflect, "Odbicie (abc|cba)"},
+            {OpenCvSharp.BorderTypes.Reflect101, "Odbicie (abc|ba)"},
+            {OpenCvSharp.BorderTypes.Wrap, "Zawijanie (abc|abc)"}
+        };
+
     public static string GetDropdownValue(ConvolutionOperation operation) => Operations[operation];
     public static string GetDropdownValue(ConvolutionEdgeDetectMethod edgeDetectMethod) => EdgeDetectionMethods[edgeDetectMethod];
     public static string GetDropdownValue(ConvolutionEdgeDetectDirection edgeDetectDirection) => EdgeDetectionDirections[edgeDetectDirection];
     public static string GetDropdownValue(ConvolutionLaplacianEdgeDetectionType edgeDetectLaplacian) => EdgeDetectionLaplacian[edgeDetectLaplacian];
     public static string GetDropdownValue(ConvolutionSharpenType sharpenType) => SharpenMethods[sharpenType];
     public static string GetDropdownValue(ConvolutionBlurType blurType) => BlurMethods[blurType];
+    public static string GetDropdownValue(BorderTypes borderType) => BorderTypes[borderType];
     
     public static ConvolutionOperation GetOperationFromDropdownValue(string dropdownValue)
     {

@@ -28,6 +28,7 @@ public class ConvolutionView : SerializedMonoBehaviour
 	[SerializeField] private TMP_Dropdown EdgeDetectionLaplacianDopdown;
 	[SerializeField] private TMP_Dropdown SharpenDropdown;
 	[SerializeField] private TMP_Dropdown BlurDropdown;
+	[SerializeField] private TMP_Dropdown BorderTypeDropdown;
 	[SerializeField] private TMP_InputField CannyT1;
 	[SerializeField] private TMP_InputField CannyT2;
 	[SerializeField] private TMP_InputField CannySobel;
@@ -61,6 +62,52 @@ public class ConvolutionView : SerializedMonoBehaviour
 	bool uiChanged = false;
 	bool dropdownChanged = false;
 
+	private void SetupDropdown<T>(TMP_Dropdown dropdown, T enumType) where T : Type
+	{
+		dropdown.ClearOptions();
+		var values = Enum.GetValues(enumType);
+
+		if (enumType == typeof(ConvolutionOperation))
+		{
+			dropdown.AddOptions(values.Cast<ConvolutionOperation>().Select(ConvolutionDropdowns.GetDropdownValue).ToList());
+		}
+		else if (enumType == typeof(ConvolutionEdgeDetectMethod))
+		{
+			dropdown.AddOptions(values.Cast<ConvolutionEdgeDetectMethod>().Select(ConvolutionDropdowns.GetDropdownValue).ToList());
+		}
+		else if (enumType == typeof(ConvolutionEdgeDetectDirection))
+		{
+			dropdown.AddOptions(values.Cast<ConvolutionEdgeDetectDirection>().Select(ConvolutionDropdowns.GetDropdownValue).ToList());
+		}
+		else if (enumType == typeof(ConvolutionLaplacianEdgeDetectionType))
+		{
+			dropdown.AddOptions(values.Cast<ConvolutionLaplacianEdgeDetectionType>().Select(ConvolutionDropdowns.GetDropdownValue).ToList());
+		}
+		else if (enumType == typeof(ConvolutionSharpenType))
+		{
+			dropdown.AddOptions(values.Cast<ConvolutionSharpenType>().Select(ConvolutionDropdowns.GetDropdownValue).ToList());
+		}
+		else if (enumType == typeof(ConvolutionBlurType))
+		{
+			dropdown.AddOptions(values.Cast<ConvolutionBlurType>().Select(ConvolutionDropdowns.GetDropdownValue).ToList());
+		}
+		else if (enumType == typeof(BorderTypes))
+		{
+			dropdown.AddOptions(new[] { BorderTypes.Isolated, BorderTypes.Reflect, BorderTypes.Reflect101, BorderTypes.Replicate}.Select(ConvolutionDropdowns.GetDropdownValue).ToList());
+		}
+		else
+		{
+			throw new Exception($"Unknown enum type {enumType}");
+		}
+
+		dropdown.RefreshShownValue();
+		dropdown.onValueChanged.AddListener(_ =>
+		{
+			dropdownChanged = true;
+			uiChanged = true;
+		});
+	}
+
 	private void Start()
 	{
 		MaskTexts = new[,]
@@ -69,62 +116,16 @@ public class ConvolutionView : SerializedMonoBehaviour
 			{ MaskX1Y2, MaskX2Y2, MaskX3Y2 },
 			{ MaskX1Y3, MaskX2Y3, MaskX3Y3 }
 		};
-
-		OperationDopdown.ClearOptions();
-		OperationDopdown.AddOptions(Enum.GetValues(typeof(ConvolutionOperation)).Cast<ConvolutionOperation>()
-			.Select(ConvolutionDropdowns.GetDropdownValue).ToList());
-		OperationDopdown.RefreshShownValue();
-		EdgeDetectionMethodDopdown.ClearOptions();
-		EdgeDetectionMethodDopdown.AddOptions(Enum.GetValues(typeof(ConvolutionEdgeDetectMethod))
-			.Cast<ConvolutionEdgeDetectMethod>().Select(ConvolutionDropdowns.GetDropdownValue).ToList());
-		EdgeDetectionMethodDopdown.RefreshShownValue();
-		EdgeDetectionDirectionDopdown.ClearOptions();
-		EdgeDetectionDirectionDopdown.AddOptions(Enum.GetValues(typeof(ConvolutionEdgeDetectDirection))
-			.Cast<ConvolutionEdgeDetectDirection>().Select(ConvolutionDropdowns.GetDropdownValue).ToList());
-		EdgeDetectionDirectionDopdown.RefreshShownValue();
-		EdgeDetectionLaplacianDopdown.ClearOptions();
-		EdgeDetectionLaplacianDopdown.AddOptions(Enum.GetValues(typeof(ConvolutionLaplacianEdgeDetectionType))
-			.Cast<ConvolutionLaplacianEdgeDetectionType>().Select(ConvolutionDropdowns.GetDropdownValue).ToList());
-		EdgeDetectionLaplacianDopdown.RefreshShownValue();
-		SharpenDropdown.ClearOptions();
-		SharpenDropdown.AddOptions(Enum.GetValues(typeof(ConvolutionSharpenType)).Cast<ConvolutionSharpenType>()
-			.Select(ConvolutionDropdowns.GetDropdownValue).ToList());
-		SharpenDropdown.RefreshShownValue();
-		BlurDropdown.ClearOptions();
-		BlurDropdown.AddOptions(Enum.GetValues(typeof(ConvolutionBlurType)).Cast<ConvolutionBlurType>()
-			.Select(ConvolutionDropdowns.GetDropdownValue).ToList());
-		BlurDropdown.RefreshShownValue();
 		
-		OperationDopdown.onValueChanged.AddListener(_ =>
-		{
-			dropdownChanged = true;
-			uiChanged = true;
-		});
-		EdgeDetectionMethodDopdown.onValueChanged.AddListener(_ =>
-		{
-			dropdownChanged = true;
-			uiChanged = true;
-		});
-		EdgeDetectionDirectionDopdown.onValueChanged.AddListener(_ =>
-		{
-			dropdownChanged = true;
-			uiChanged = true;
-		});
-		EdgeDetectionLaplacianDopdown.onValueChanged.AddListener(_ =>
-		{
-			dropdownChanged = true;
-			uiChanged = true;
-		});
-		SharpenDropdown.onValueChanged.AddListener(_ =>
-		{
-			dropdownChanged = true;
-			uiChanged = true;
-		});
-		BlurDropdown.onValueChanged.AddListener(_ =>
-		{
-			dropdownChanged = true;
-			uiChanged = true;
-		});
+		SetupDropdown(OperationDopdown, typeof(ConvolutionOperation));
+		SetupDropdown(EdgeDetectionMethodDopdown, typeof(ConvolutionEdgeDetectMethod));
+		SetupDropdown(EdgeDetectionDirectionDopdown, typeof(ConvolutionEdgeDetectDirection));
+		SetupDropdown(EdgeDetectionLaplacianDopdown, typeof(ConvolutionLaplacianEdgeDetectionType));
+		SetupDropdown(SharpenDropdown, typeof(ConvolutionSharpenType));
+		SetupDropdown(BlurDropdown, typeof(ConvolutionBlurType));
+		SetupDropdown(BorderTypeDropdown, typeof(BorderTypes));
+		
+		
 		CannyT1.onValueChanged.AddListener(_ => uiChanged = true);
 		CannyT2.onValueChanged.AddListener(_ => uiChanged = true);
 		CannySobel.onValueChanged.AddListener(_ => uiChanged = true);
@@ -149,6 +150,7 @@ public class ConvolutionView : SerializedMonoBehaviour
 		LaplacianEdgeDetectionType = (ConvolutionLaplacianEdgeDetectionType)EdgeDetectionLaplacianDopdown.value;
 		sharpenMethod = (ConvolutionSharpenType)SharpenDropdown.value;
 		blurMethod = (ConvolutionBlurType)BlurDropdown.value;
+		BorderType = DropdownIndexToBorderType();
 		
 		TryReadValue(CannyT1.text, ref CannyT1Value, 0.0, 255.0);
 		TryReadValue(CannyT2.text, ref CannyT2Value, 0.0, 255.0);
@@ -208,6 +210,7 @@ public class ConvolutionView : SerializedMonoBehaviour
 				BlurDropdown.gameObject.SetActive(false);
 				CannyPanel.SetActive(false);
 				MaskCanvasGroup.alpha = 1.0f;
+				BorderTypeDropdown.gameObject.SetActive(true);
 				break;
 			case ConvolutionOperation.Blur:
 				EdgeDetectionMethodDopdown.gameObject.SetActive(false);
@@ -217,6 +220,7 @@ public class ConvolutionView : SerializedMonoBehaviour
 				BlurDropdown.gameObject.SetActive(true);
 				CannyPanel.SetActive(false);
 				MaskCanvasGroup.alpha = 1.0f;
+				BorderTypeDropdown.gameObject.SetActive(true);
 				break;
 			case ConvolutionOperation.Sharpen:
 				EdgeDetectionMethodDopdown.gameObject.SetActive(false);
@@ -226,6 +230,7 @@ public class ConvolutionView : SerializedMonoBehaviour
 				BlurDropdown.gameObject.SetActive(false);
 				CannyPanel.SetActive(false);
 				MaskCanvasGroup.alpha = 1.0f;
+				BorderTypeDropdown.gameObject.SetActive(true);
 				break;
 			case ConvolutionOperation.EdgeDetection:
 				EdgeDetectionMethodDopdown.gameObject.SetActive(true);
@@ -236,6 +241,7 @@ public class ConvolutionView : SerializedMonoBehaviour
 				SharpenDropdown.gameObject.SetActive(false);
 				BlurDropdown.gameObject.SetActive(false);
 				CannyPanel.SetActive(edgeDetectionMethod is ConvolutionEdgeDetectMethod.Canny);
+				BorderTypeDropdown.gameObject.SetActive(edgeDetectionMethod is not ConvolutionEdgeDetectMethod.Canny);
 				MaskCanvasGroup.alpha = edgeDetectionMethod == ConvolutionEdgeDetectMethod.Canny ? 0f : 1f;
 				break;
 		}
@@ -272,6 +278,41 @@ public class ConvolutionView : SerializedMonoBehaviour
 		EdgeDetectionLaplacianDopdown.SetValueWithoutNotify((int)LaplacianEdgeDetectionType);
 		SharpenDropdown.SetValueWithoutNotify((int)sharpenMethod);
 		BlurDropdown.SetValueWithoutNotify((int)blurMethod);
+		BorderTypeDropdown.SetValueWithoutNotify(BorderTypeToDropdownIndex());
+	}
+
+	private int BorderTypeToDropdownIndex()
+	{
+		switch (BorderType)
+		{
+			case BorderTypes.Isolated:
+				return 0;
+			case BorderTypes.Reflect:
+				return 1;
+			case BorderTypes.Reflect101:
+				return 2;
+			case BorderTypes.Replicate:
+				return 3;
+			default:
+				return 0;
+		}
+	}
+	
+	private BorderTypes DropdownIndexToBorderType()
+	{
+		switch (BorderTypeDropdown.value)
+		{
+			case 0:
+				return BorderTypes.Isolated;
+			case 1:
+				return BorderTypes.Reflect;
+			case 2:
+				return BorderTypes.Reflect101;
+			case 3:
+				return BorderTypes.Replicate;
+			default:
+				return BorderTypes.Isolated;
+		}
 	}
 
 	private void SyncTextsOnChange()
@@ -418,6 +459,7 @@ public class ConvolutionView : SerializedMonoBehaviour
 		LaplacianEdgeDetectionType = CurrentRequest.LaplacianEdgeDetectionType;
 		sharpenMethod = CurrentRequest.SharpenType;
 		blurMethod = CurrentRequest.BlurType;
+		BorderType = BorderTypes.Reflect101;
 		CannyT1Value = 85;
 		CannyT2Value = 255;
 		CannySobelSize = 3;
