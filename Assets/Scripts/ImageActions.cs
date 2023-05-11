@@ -28,8 +28,68 @@ public static class ImageActions
         {"Wygładzanie", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionBlurType.Gauss))},
         {"Detekcja krawędzi", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionEdgeDetectMethod.Canny, ConvolutionEdgeDetectDirection.North))},
         {"Wyostrzenie", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionSharpenType.Laplacian1))},
-        {"Filtr medianowy", HandleMedian}
+        {"Filtr medianowy", HandleMedian},
+        {"Dodawanie obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, AddImages))},
+        {"Odejmowanie obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, SubtractImages))},
+        {"Mnożenie obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, MultiplyImages))},
+        {"AND obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, ANDImages))},
+        {"OR obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, ORImages))},
+        {"XOR obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, XORImages))}
     };
+    
+    private static void XORImages(ImageHolder A, ImageHolder B)
+    {
+        using var matA = GetBlackAndWhiteMat(A);
+        using var matB = GetBlackAndWhiteMat(B);
+        using var output = new Mat();
+        Cv2.BitwiseXor(matA, matB, output);
+        ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " XOR " + B.GetComponent<DragableUIWindow>().WindowTitle);
+    }
+    
+    private static void ORImages(ImageHolder A, ImageHolder B)
+    {
+        using var matA = GetBlackAndWhiteMat(A);
+        using var matB = GetBlackAndWhiteMat(B);
+        using var output = new Mat();
+        Cv2.BitwiseOr(matA, matB, output);
+        ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " OR " + B.GetComponent<DragableUIWindow>().WindowTitle);
+    }
+    
+    private static void ANDImages(ImageHolder A, ImageHolder B)
+    {
+        using var matA = GetBlackAndWhiteMat(A);
+        using var matB = GetBlackAndWhiteMat(B);
+        using var output = new Mat();
+        Cv2.BitwiseAnd(matA, matB, output);
+        ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " AND " + B.GetComponent<DragableUIWindow>().WindowTitle);
+    }
+    
+    private static void MultiplyImages(ImageHolder A, ImageHolder B)
+    {
+        using var matA = GetBlackAndWhiteMat(A);
+        using var matB = GetBlackAndWhiteMat(B);
+        using var output = new Mat();
+        Cv2.Multiply(matA, matB, output);
+        ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " * " + B.GetComponent<DragableUIWindow>().WindowTitle);
+    }
+    
+    private static void SubtractImages(ImageHolder A, ImageHolder B)
+    {
+        using var matA = GetBlackAndWhiteMat(A);
+        using var matB = GetBlackAndWhiteMat(B);
+        using var output = new Mat();
+        Cv2.Subtract(matA, matB, output);
+        ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " - " + B.GetComponent<DragableUIWindow>().WindowTitle);
+    }
+
+    private static void AddImages(ImageHolder A, ImageHolder B)
+    {
+        using var matA = GetBlackAndWhiteMat(A);
+        using var matB = GetBlackAndWhiteMat(B);
+        using var output = new Mat();
+        Cv2.Add(matA, matB, output);
+        ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " + " + B.GetComponent<DragableUIWindow>().WindowTitle);
+    }
 
     private static void HandleMedian(ImageHolder obj)
     {

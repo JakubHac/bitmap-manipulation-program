@@ -6,6 +6,7 @@ using System.Linq;
 using OpenCvSharp;
 using SimpleFileBrowser;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Networking;
 
 public class ImageLoader : MonoBehaviour
@@ -67,7 +68,7 @@ public class ImageLoader : MonoBehaviour
 
 		var data = FileBrowserHelpers.ReadBytesFromFile(uri);
 		
-		Texture2D tex = new Texture2D(2, 2);
+		Texture2D tex = new Texture2D(2, 2, DefaultFormat.LDR, 0, TextureCreationFlags.None);
 
 		switch (extension)
 		{
