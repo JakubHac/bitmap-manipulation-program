@@ -34,9 +34,24 @@ public static class ImageActions
         {"Mnożenie obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, MultiplyImages))},
         {"AND obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, ANDImages))},
         {"OR obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, ORImages))},
-        {"XOR obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, XORImages))}
+        {"XOR obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, XORImages))},
+        {"Mieszanie obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, HandleBlendImages))}
     };
-    
+
+    private static void HandleBlendImages(ImageHolder A, ImageHolder B)
+    {
+        Messenger.Default.Publish(new BlendImagesRequest(A, B));
+    }
+
+    public static Texture2D BlendImages(ImageHolder A, ImageHolder B, float lerp)
+    {
+        using var matA = GetBlackAndWhiteMat(A);
+        using var matB = GetBlackAndWhiteMat(B);
+        using var output = new Mat();
+        Cv2.AddWeighted(matA, 1f - lerp, matB, lerp, 0, output);
+        return MatToTexture(output);
+    }
+
     private static void XORImages(ImageHolder A, ImageHolder B)
     {
         using var matA = GetBlackAndWhiteMat(A);

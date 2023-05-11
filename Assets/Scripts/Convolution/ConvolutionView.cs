@@ -164,6 +164,11 @@ public class ConvolutionView : SerializedMonoBehaviour
 			CannySobelSize++;
 		}
 		
+		if (operation == ConvolutionOperation.EdgeDetection && edgeDetectionMethod == ConvolutionEdgeDetectMethod.Canny)
+		{
+			return;
+		}
+		
 		for (int i = 0; i < 3; i++)
 		{
 			for (int j = 0; j < 3; j++)
@@ -345,6 +350,19 @@ public class ConvolutionView : SerializedMonoBehaviour
 
 	private void MaskTextsFromMask()
 	{
+		if (operation == ConvolutionOperation.EdgeDetection && edgeDetectionMethod == ConvolutionEdgeDetectMethod.Canny)
+		{
+			for (int i = 0; i < MaskTexts.GetLength(0); i++)
+			{
+				for (int j = 0; j < MaskTexts.GetLength(1); j++)
+				{
+					var text = MaskTexts[i, j];
+					text.text = "";
+					text.readOnly = true;
+				}
+			}
+			return;
+		}
 		for (int i = 0; i < MaskTexts.GetLength(0); i++)
 		{
 			for (int j = 0; j < MaskTexts.GetLength(1); j++)
@@ -464,7 +482,20 @@ public class ConvolutionView : SerializedMonoBehaviour
 		CannyT2Value = 255;
 		CannySobelSize = 3;
 
-		mask = GetMask();
+		if (operation == ConvolutionOperation.EdgeDetection && edgeDetectionMethod == ConvolutionEdgeDetectMethod.Canny)
+		{
+			mask = new[,]
+			{
+				{ 0.0, 0.0, 0.0 },
+				{ 0.0, 1.0, 0.0 },
+				{ 0.0, 0.0, 0.0 }
+			};
+		}
+		else
+		{
+			mask = GetMask();
+		}
+		
 		SyncAllUI();
 	}
 
