@@ -42,7 +42,7 @@ public static class ImageActions
         {"Erozja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.ERODE))},
         {"Dylatacja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.DILATE))},
         {"Szkieletyzacja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.Skeletonize))},
-        {"Binaryzacja", MakeBinary}
+        {"Binaryzacja", (x) => Messenger.Default.Publish(new BinaryRequest(x))}
     };
 
     private static void HandleBlendImages(ImageHolder A, ImageHolder B)
@@ -438,11 +438,11 @@ public static class ImageActions
         return grayMat;
     }
     
-    public static Mat GetBinaryMat(ImageHolder source)
+    public static Mat GetBinaryMat(ImageHolder source, int threshold = 128)
     {
         using Mat mat = OpenCvSharp.Unity.TextureToMat(source.Texture);
         using Mat tmpMat = new Mat();
-        Cv2.Threshold(mat, tmpMat, 128, 255, ThresholdTypes.Binary);
+        Cv2.Threshold(mat, tmpMat, threshold, 255, ThresholdTypes.Binary);
         return tmpMat.ExtractChannel(0);
     }
     
@@ -552,10 +552,10 @@ public static class ImageActions
         
     }
 
-    public static void MakeBinary(ImageHolder source)
+    public static Texture2D MakeBinaryTexture(ImageHolder source, float threshold)
     {
-        using Mat binaryMat = GetBinaryMat(source);
-        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, MatToTexture(binaryMat), source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Binaryzacja"));
+        using Mat binaryMat = GetBinaryMat(source, Mathf.RoundToInt(threshold * 255f));
+        return MatToTexture(binaryMat);
     }
     
     public static void Erode(ImageHolder source, bool allNeighbours, BorderTypes borderType)
