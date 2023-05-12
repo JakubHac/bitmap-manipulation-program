@@ -87,5 +87,7 @@ namespace OpenCvSharp
         /// </summary>
 #endif
         BlackHat = 6,
+        
+        Skeletonize = 7
     }
 }

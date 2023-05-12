@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using OpenCvSharp;
 using SuperMaxim.Messaging;
 using UnityEngine;
@@ -22,20 +23,26 @@ public static class ImageActions
         {"Equalizacja histogramu", EqualizeHistogram},
         {"Duplikacja", Duplicate},
         {"Negacja", Negate},
-        {"Posteryzacja", HandlePosterize},
-        {"Selektywne rozciąganie", HandleSelectiveStretch},
-        {"Konwolucja", (x) => HandleConvolve(new ConvolutionRequest(x))},
-        {"Wygładzanie", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionBlurType.Gauss))},
-        {"Detekcja krawędzi", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionEdgeDetectMethod.Canny, ConvolutionEdgeDetectDirection.North))},
-        {"Wyostrzenie", (x) => HandleConvolve(new ConvolutionRequest(x, ConvolutionSharpenType.Laplacian1))},
-        {"Filtr medianowy", HandleMedian},
+        {"Posteryzacja", (x) => Messenger.Default.Publish(new PosterizeRequest(x))},
+        {"Selektywne rozciąganie", (x) => Messenger.Default.Publish(new SelectiveStretchRequest(x))},
+        {"Konwolucja", (x) => Messenger.Default.Publish(new ConvolutionRequest(x))},
+        {"Wygładzanie", (x) => Messenger.Default.Publish(new ConvolutionRequest(x, ConvolutionBlurType.Gauss))},
+        {"Detekcja krawędzi", (x) => Messenger.Default.Publish(new ConvolutionRequest(x, ConvolutionEdgeDetectMethod.Canny, ConvolutionEdgeDetectDirection.North))},
+        {"Wyostrzenie", (x) => Messenger.Default.Publish(new ConvolutionRequest(x, ConvolutionSharpenType.Laplacian1))},
+        {"Filtr medianowy", (x) => Messenger.Default.Publish(new MedianFilterRequest(x))},
         {"Dodawanie obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, AddImages))},
         {"Odejmowanie obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, SubtractImages))},
         {"Mnożenie obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, MultiplyImages))},
         {"AND obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, ANDImages))},
         {"OR obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, ORImages))},
         {"XOR obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, XORImages))},
-        {"Mieszanie obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, HandleBlendImages))}
+        {"Mieszanie obrazów", (x) => Messenger.Default.Publish(new CombineImagesRequest(x, HandleBlendImages))},
+        {"Otwarcie", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.Open))},
+        {"Zamknięcie", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.Close))},
+        {"Erozja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.ERODE))},
+        {"Dylatacja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.DILATE))},
+        {"Szkieletyzacja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.Skeletonize))},
+        {"Binaryzacja", MakeBinary}
     };
 
     private static void HandleBlendImages(ImageHolder A, ImageHolder B)
@@ -104,26 +111,6 @@ public static class ImageActions
         using var output = new Mat();
         Cv2.Add(matA, matB, output);
         ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " + " + B.GetComponent<DragableUIWindow>().WindowTitle);
-    }
-
-    private static void HandleMedian(ImageHolder obj)
-    {
-        Messenger.Default.Publish(new MedianFilterRequest(obj));
-    }
-
-    private static void HandleConvolve(ConvolutionRequest convolutionRequest)
-    {
-        Messenger.Default.Publish(convolutionRequest);
-    }
-
-    private static void HandleSelectiveStretch(ImageHolder source)
-    {
-        Messenger.Default.Publish(new SelectiveStretchRequest(source));
-    }
-
-    private static void HandlePosterize(ImageHolder source)
-    {
-        Messenger.Default.Publish(new PosterizeRequest(source));
     }
 
     public static Texture2D PosterizeTexture(ImageHolder input, int posterizeLevel)
@@ -451,6 +438,14 @@ public static class ImageActions
         return grayMat;
     }
     
+    public static Mat GetBinaryMat(ImageHolder source)
+    {
+        using Mat mat = OpenCvSharp.Unity.TextureToMat(source.Texture);
+        using Mat tmpMat = new Mat();
+        Cv2.Threshold(mat, tmpMat, 128, 255, ThresholdTypes.Binary);
+        return tmpMat.ExtractChannel(0);
+    }
+    
     public static Texture2D MatToTexture(Mat mat)
     {
         Texture2D texture = new Texture2D(mat.Width, mat.Height, DefaultFormat.LDR, 0, TextureCreationFlags.None);
@@ -531,9 +526,41 @@ public static class ImageActions
         return MatToTexture(outputMat);
     }
 
+    public static void Morph(ImageHolder source, bool allNeighbours, BorderTypes borderTypes, MorphTypes morphTypes)
+    {
+        switch (morphTypes)
+        {
+            case MorphTypes.Skeletonize:
+                Skeletonize(source, allNeighbours, borderTypes);
+                break;
+            case MorphTypes.ERODE:
+                Erode(source, allNeighbours, borderTypes);
+                break;
+            case MorphTypes.DILATE:
+                Dilate(source, allNeighbours, borderTypes);
+                break;
+            case MorphTypes.Open:
+                Open(source, allNeighbours, borderTypes);
+                break;
+            case MorphTypes.Close:
+                Close(source, allNeighbours, borderTypes);
+                break;
+            default:
+                Debug.LogError("Unknown morph type");
+                return;
+        }
+        
+    }
+
+    public static void MakeBinary(ImageHolder source)
+    {
+        using Mat binaryMat = GetBinaryMat(source);
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, MatToTexture(binaryMat), source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Binaryzacja"));
+    }
+    
     public static void Erode(ImageHolder source, bool allNeighbours, BorderTypes borderType)
     {
-        using Mat inputMat = GetBlackAndWhiteMat(source);
+        using Mat inputMat = GetBinaryMat(source);
         using Mat outputMat = new();
         Cv2.MorphologyEx(inputMat, outputMat, MorphTypes.ERODE, GetStructuringElement(allNeighbours), borderType: borderType);
         Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, MatToTexture(outputMat), source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Erozja"));
@@ -541,7 +568,7 @@ public static class ImageActions
     
     public static void Dilate(ImageHolder source, bool allNeighbours, BorderTypes borderType)
     {
-        using Mat inputMat = GetBlackAndWhiteMat(source);
+        using Mat inputMat = GetBinaryMat(source);
         using Mat outputMat = new();
         Cv2.MorphologyEx(inputMat, outputMat, MorphTypes.DILATE, GetStructuringElement(allNeighbours), borderType: borderType);
         Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, MatToTexture(outputMat), source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Dylatacja"));
@@ -549,7 +576,7 @@ public static class ImageActions
     
     public static void Open(ImageHolder source, bool allNeighbours, BorderTypes borderType)
     {
-        using Mat inputMat = GetBlackAndWhiteMat(source);
+        using Mat inputMat = GetBinaryMat(source);
         using Mat outputMat = new();
         Cv2.MorphologyEx(inputMat, outputMat, MorphTypes.Open, GetStructuringElement(allNeighbours), borderType: borderType);
         Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, MatToTexture(outputMat), source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Otwarcie"));
@@ -557,7 +584,7 @@ public static class ImageActions
     
     public static void Close(ImageHolder source, bool allNeighbours, BorderTypes borderType)
     {
-        using Mat inputMat = GetBlackAndWhiteMat(source);
+        using Mat inputMat = GetBinaryMat(source);
         using Mat outputMat = new();
         Cv2.MorphologyEx(inputMat, outputMat, MorphTypes.Close, GetStructuringElement(allNeighbours), borderType: borderType);
         Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, MatToTexture(outputMat), source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Zamknięcie"));
@@ -565,27 +592,37 @@ public static class ImageActions
     
     public static void Skeletonize(ImageHolder source, bool allNeighbours, BorderTypes borderType)
     {
-        using Mat inputMat = GetBlackAndWhiteMat(source);
-        Mat tmpInputMat = new(inputMat);
-        Mat tmpOutputMat = new(inputMat);
+        Mat imgMat = GetBinaryMat(source);
+        Mat skeletonMat = Mat.Zeros(imgMat.Size(), imgMat.Type());
         
+        using Mat structuringElement = GetStructuringElement(allNeighbours);
+
         while (true)
         {
-            Cv2.MorphologyEx(tmpInputMat, tmpOutputMat, MorphTypes.ERODE, GetStructuringElement(allNeighbours), borderType: borderType);
-            if (tmpOutputMat.Sum().Equals(Scalar.Black))
+            Mat erodedMat = new Mat();
+            Mat tmpMat = new Mat();
+            
+            Cv2.MorphologyEx(imgMat, erodedMat, MorphTypes.ERODE, structuringElement, borderType: borderType);
+            Cv2.MorphologyEx(erodedMat, tmpMat, MorphTypes.DILATE, structuringElement, borderType: borderType);
+            Cv2.Subtract(imgMat, tmpMat, tmpMat);
+            Cv2.BitwiseOr(skeletonMat, tmpMat, skeletonMat);
+            
+            imgMat.Dispose();
+            imgMat = erodedMat.Clone();
+
+            erodedMat.Dispose();
+            tmpMat.Dispose();
+            
+            if (Cv2.CountNonZero(imgMat) == 0)
             {
                 break;
             }
-            tmpInputMat.Dispose();
-            tmpInputMat = new(tmpOutputMat);
         }
-
-        var texture = MatToTexture(tmpInputMat);
+        imgMat.Dispose();
         
-        tmpInputMat.Dispose();
-        tmpOutputMat.Dispose();
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, MatToTexture(skeletonMat), source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Szkieletyzacja"));
         
-        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Szkieletyzacja"));
+        skeletonMat.Dispose();
     }
     
     private static Mat GetStructuringElement(bool allNeighbours)
