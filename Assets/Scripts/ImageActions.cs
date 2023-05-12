@@ -593,14 +593,14 @@ public static class ImageActions
     public static void Skeletonize(ImageHolder source, bool allNeighbours, BorderTypes borderType)
     {
         Mat imgMat = GetBinaryMat(source);
-        Mat skeletonMat = Mat.Zeros(imgMat.Size(), imgMat.Type());
+        Mat skeletonMat = Mat.Zeros(imgMat.Size(), imgMat.Type()).ToMat();
         
         using Mat structuringElement = GetStructuringElement(allNeighbours);
 
         while (true)
         {
-            Mat erodedMat = new Mat();
-            Mat tmpMat = new Mat();
+            Mat erodedMat = Mat.Zeros(imgMat.Size(), imgMat.Type()).ToMat();
+            Mat tmpMat = Mat.Zeros(imgMat.Size(), imgMat.Type()).ToMat();
             
             Cv2.MorphologyEx(imgMat, erodedMat, MorphTypes.ERODE, structuringElement, borderType: borderType);
             Cv2.MorphologyEx(erodedMat, tmpMat, MorphTypes.DILATE, structuringElement, borderType: borderType);
