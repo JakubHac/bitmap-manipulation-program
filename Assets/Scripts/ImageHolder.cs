@@ -30,7 +30,7 @@ public class ImageHolder : SerializedMonoBehaviour
 			{
 				Image.texture = value;
 				value.filterMode = FilterMode.Point;
-				
+				value.wrapMode = TextureWrapMode.Clamp;
 				GetComponent<RectTransform>().sizeDelta = GetHolderSizeFromTexture(value);
 				Image.GetComponent<AspectRatioFitter>().aspectRatio = (float)value.width / value.height;
 				OnTextureUpdated?.Invoke();

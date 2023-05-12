@@ -45,8 +45,8 @@ public static class ImageActions
 
     public static Texture2D BlendImages(ImageHolder A, ImageHolder B, float lerp)
     {
-        using var matA = GetBlackAndWhiteMat(A);
-        using var matB = GetBlackAndWhiteMat(B);
+        using var matA = OpenCvSharp.Unity.TextureToMat(A.Texture);
+        using var matB = OpenCvSharp.Unity.TextureToMat(B.Texture);
         using var output = new Mat();
         Cv2.AddWeighted(matA, 1f - lerp, matB, lerp, 0, output);
         return MatToTexture(output);
@@ -81,8 +81,8 @@ public static class ImageActions
     
     private static void MultiplyImages(ImageHolder A, ImageHolder B)
     {
-        using var matA = GetBlackAndWhiteMat(A);
-        using var matB = GetBlackAndWhiteMat(B);
+        using var matA = OpenCvSharp.Unity.TextureToMat(A.Texture);
+        using var matB = OpenCvSharp.Unity.TextureToMat(B.Texture);
         using var output = new Mat();
         Cv2.Multiply(matA, matB, output);
         ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " * " + B.GetComponent<DragableUIWindow>().WindowTitle);
@@ -90,8 +90,8 @@ public static class ImageActions
     
     private static void SubtractImages(ImageHolder A, ImageHolder B)
     {
-        using var matA = GetBlackAndWhiteMat(A);
-        using var matB = GetBlackAndWhiteMat(B);
+        using var matA = OpenCvSharp.Unity.TextureToMat(A.Texture);
+        using var matB = OpenCvSharp.Unity.TextureToMat(B.Texture);
         using var output = new Mat();
         Cv2.Subtract(matA, matB, output);
         ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " - " + B.GetComponent<DragableUIWindow>().WindowTitle);
@@ -99,8 +99,8 @@ public static class ImageActions
 
     private static void AddImages(ImageHolder A, ImageHolder B)
     {
-        using var matA = GetBlackAndWhiteMat(A);
-        using var matB = GetBlackAndWhiteMat(B);
+        using var matA = OpenCvSharp.Unity.TextureToMat(A.Texture);
+        using var matB = OpenCvSharp.Unity.TextureToMat(B.Texture);
         using var output = new Mat();
         Cv2.Add(matA, matB, output);
         ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " + " + B.GetComponent<DragableUIWindow>().WindowTitle);
@@ -454,6 +454,8 @@ public static class ImageActions
     public static Texture2D MatToTexture(Mat mat)
     {
         Texture2D texture = new Texture2D(mat.Width, mat.Height, DefaultFormat.LDR, 0, TextureCreationFlags.None);
+        texture.filterMode = FilterMode.Point;
+        texture.wrapMode = TextureWrapMode.Clamp;
         OpenCvSharp.Unity.MatToTexture(mat, texture);
         return texture;
     }
@@ -527,5 +529,67 @@ public static class ImageActions
         using Mat outputMat = new();
         Cv2.MedianBlur(inputMat, outputMat, kernelSize);
         return MatToTexture(outputMat);
+    }
+
+    public static void Erode(ImageHolder source, bool allNeighbours, BorderTypes borderType)
+    {
+        using Mat inputMat = GetBlackAndWhiteMat(source);
+        using Mat outputMat = new();
+        Cv2.MorphologyEx(inputMat, outputMat, MorphTypes.ERODE, GetStructuringElement(allNeighbours), borderType: borderType);
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, MatToTexture(outputMat), source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Erozja"));
+    }
+    
+    public static void Dilate(ImageHolder source, bool allNeighbours, BorderTypes borderType)
+    {
+        using Mat inputMat = GetBlackAndWhiteMat(source);
+        using Mat outputMat = new();
+        Cv2.MorphologyEx(inputMat, outputMat, MorphTypes.DILATE, GetStructuringElement(allNeighbours), borderType: borderType);
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, MatToTexture(outputMat), source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Dylatacja"));
+    }
+    
+    public static void Open(ImageHolder source, bool allNeighbours, BorderTypes borderType)
+    {
+        using Mat inputMat = GetBlackAndWhiteMat(source);
+        using Mat outputMat = new();
+        Cv2.MorphologyEx(inputMat, outputMat, MorphTypes.Open, GetStructuringElement(allNeighbours), borderType: borderType);
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, MatToTexture(outputMat), source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Otwarcie"));
+    }
+    
+    public static void Close(ImageHolder source, bool allNeighbours, BorderTypes borderType)
+    {
+        using Mat inputMat = GetBlackAndWhiteMat(source);
+        using Mat outputMat = new();
+        Cv2.MorphologyEx(inputMat, outputMat, MorphTypes.Close, GetStructuringElement(allNeighbours), borderType: borderType);
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, MatToTexture(outputMat), source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Zamknięcie"));
+    }
+    
+    public static void Skeletonize(ImageHolder source, bool allNeighbours, BorderTypes borderType)
+    {
+        using Mat inputMat = GetBlackAndWhiteMat(source);
+        Mat tmpInputMat = new(inputMat);
+        Mat tmpOutputMat = new(inputMat);
+        
+        while (true)
+        {
+            Cv2.MorphologyEx(tmpInputMat, tmpOutputMat, MorphTypes.ERODE, GetStructuringElement(allNeighbours), borderType: borderType);
+            if (tmpOutputMat.Sum().Equals(Scalar.Black))
+            {
+                break;
+            }
+            tmpInputMat.Dispose();
+            tmpInputMat = new(tmpOutputMat);
+        }
+
+        var texture = MatToTexture(tmpInputMat);
+        
+        tmpInputMat.Dispose();
+        tmpOutputMat.Dispose();
+        
+        Messenger.Default.Publish(new ImageReplaceOrNewEvent(source.Texture, texture, source, source.GetComponent<DragableUIWindow>().WindowTitle + " - Szkieletyzacja"));
+    }
+    
+    private static Mat GetStructuringElement(bool allNeighbours)
+    {
+        return Cv2.GetStructuringElement(allNeighbours ? MorphShapes.Rect : MorphShapes.Cross, new Size(3,3));
     }
 }
