@@ -1,6 +1,7 @@
 using System.Drawing;
 using OpenCvSharp;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class Test : MonoBehaviour
@@ -9,7 +10,7 @@ public class Test : MonoBehaviour
     [SerializeField] private RawImage RawImage;
     [SerializeField] private Texture2D Input;
     [SerializeField] private AspectRatioFitter aspectRatioFitter;
-    [SerializeField] private ImageLoader ImageLoader;
+    [FormerlySerializedAs("ImageLoader")] [SerializeField] private ImageFiles ImageFiles;
     
     
     void Start()

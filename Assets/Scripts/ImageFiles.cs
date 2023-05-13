@@ -9,12 +9,12 @@ using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Networking;
 
-public class ImageLoader : MonoBehaviour
+public class ImageFiles : MonoBehaviour
 {
 	[SerializeField] private RectTransform ImagesParent;
 	[SerializeField] GameObject ImageHolderPrefab;
 
-	public static ImageLoader Instance;
+	public static ImageFiles Instance;
 
 	private static readonly IReadOnlyList<string> ImageExtensions = new List<string>()
 		{ ".png", ".jpg", ".jpeg", ".bmp" };
@@ -39,15 +39,30 @@ public class ImageLoader : MonoBehaviour
 
 	public void LoadImage()
 	{
-		FileBrowser.ShowLoadDialog(OnSuccess, OnCancel, FileBrowser.PickMode.Files, true,
+		FileBrowser.ShowLoadDialog(OnLoadSuccess, OnLoadCancel, FileBrowser.PickMode.Files, true,
 			Application.persistentDataPath, title: "Wybierz obrazy", loadButtonText: "Wybierz");
 	}
 
-	private void OnCancel()
+	public void SaveImage(ImageHolder source, bool compression)
+	{
+		FileBrowser.ShowSaveDialog(result => OnSaveSucces(result, compression, OpenCvSharp.Unity.TextureToMat(source.Texture)), OnSaveCancel, FileBrowser.PickMode.Files, allowMultiSelection: false, title:"Zapisz obraz", saveButtonText: "Zapisz", initialFilename: source.GetComponent<DragableUIWindow>().WindowTitle);
+	}
+
+	private void OnSaveCancel()
+	{
+		
+	}
+
+	private void OnSaveSucces(string[] paths, bool compression, Mat mat)
+	{
+		Cv2.ImWrite(paths[0], mat);
+	}
+
+	private void OnLoadCancel()
 	{
 	}
 
-	private void OnSuccess(string[] paths)
+	private void OnLoadSuccess(string[] paths)
 	{
 		foreach (var path in paths)
 		{

@@ -46,7 +46,7 @@ public class ImageReplaceOrNewHandler : MonoBehaviour
 
     public void OnNew()
     {
-	    ImageLoader.Instance.SpawnWithTexture((Texture2D)NewImage.texture, title: NewImageName);
+	    ImageFiles.Instance.SpawnWithTexture((Texture2D)NewImage.texture, title: NewImageName);
 	    ReplaceView.Hide();
     }
     

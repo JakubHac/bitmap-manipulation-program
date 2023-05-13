@@ -42,7 +42,8 @@ public static class ImageActions
         {"Erozja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.ERODE))},
         {"Dylatacja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.DILATE))},
         {"Szkieletyzacja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.Skeletonize))},
-        {"Binaryzacja", (x) => Messenger.Default.Publish(new BinaryRequest(x))}
+        {"Binaryzacja", (x) => Messenger.Default.Publish(new BinaryRequest(x))},
+        {"Zapisz", (x) => ImageFiles.Instance.SaveImage(x, false)}
     };
 
     private static void HandleBlendImages(ImageHolder A, ImageHolder B)
@@ -65,7 +66,7 @@ public static class ImageActions
         using var matB = GetBlackAndWhiteMat(B);
         using var output = new Mat();
         Cv2.BitwiseXor(matA, matB, output);
-        ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " XOR " + B.GetComponent<DragableUIWindow>().WindowTitle);
+        ImageFiles.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " XOR " + B.GetComponent<DragableUIWindow>().WindowTitle);
     }
     
     private static void ORImages(ImageHolder A, ImageHolder B)
@@ -74,7 +75,7 @@ public static class ImageActions
         using var matB = GetBlackAndWhiteMat(B);
         using var output = new Mat();
         Cv2.BitwiseOr(matA, matB, output);
-        ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " OR " + B.GetComponent<DragableUIWindow>().WindowTitle);
+        ImageFiles.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " OR " + B.GetComponent<DragableUIWindow>().WindowTitle);
     }
     
     private static void ANDImages(ImageHolder A, ImageHolder B)
@@ -83,7 +84,7 @@ public static class ImageActions
         using var matB = GetBlackAndWhiteMat(B);
         using var output = new Mat();
         Cv2.BitwiseAnd(matA, matB, output);
-        ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " AND " + B.GetComponent<DragableUIWindow>().WindowTitle);
+        ImageFiles.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " AND " + B.GetComponent<DragableUIWindow>().WindowTitle);
     }
     
     private static void MultiplyImages(ImageHolder A, ImageHolder B)
@@ -92,7 +93,7 @@ public static class ImageActions
         using var matB = OpenCvSharp.Unity.TextureToMat(B.Texture);
         using var output = new Mat();
         Cv2.Multiply(matA, matB, output);
-        ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " * " + B.GetComponent<DragableUIWindow>().WindowTitle);
+        ImageFiles.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " * " + B.GetComponent<DragableUIWindow>().WindowTitle);
     }
     
     private static void SubtractImages(ImageHolder A, ImageHolder B)
@@ -101,7 +102,7 @@ public static class ImageActions
         using var matB = OpenCvSharp.Unity.TextureToMat(B.Texture);
         using var output = new Mat();
         Cv2.Subtract(matA, matB, output);
-        ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " - " + B.GetComponent<DragableUIWindow>().WindowTitle);
+        ImageFiles.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " - " + B.GetComponent<DragableUIWindow>().WindowTitle);
     }
 
     private static void AddImages(ImageHolder A, ImageHolder B)
@@ -110,7 +111,7 @@ public static class ImageActions
         using var matB = OpenCvSharp.Unity.TextureToMat(B.Texture);
         using var output = new Mat();
         Cv2.Add(matA, matB, output);
-        ImageLoader.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " + " + B.GetComponent<DragableUIWindow>().WindowTitle);
+        ImageFiles.Instance.SpawnWithTexture(MatToTexture(output), title: A.GetComponent<DragableUIWindow>().WindowTitle + " + " + B.GetComponent<DragableUIWindow>().WindowTitle);
     }
 
     public static Texture2D PosterizeTexture(ImageHolder input, int posterizeLevel)
@@ -152,7 +153,7 @@ public static class ImageActions
     {
         var newTexture = DuplicateTexture(source);
         var window = source.GetComponent<DragableUIWindow>();
-        ImageLoader.Instance.SpawnWithTexture(newTexture, window.WindowColor, window.WindowTitle);
+        ImageFiles.Instance.SpawnWithTexture(newTexture, window.WindowColor, window.WindowTitle);
     }
 
     private static Texture2D DuplicateTexture(ImageHolder source)
@@ -412,19 +413,19 @@ public static class ImageActions
             Texture2D texture = MatToTexture(channels[i]);
             if (colors == null && titles == null)
             {
-                ImageLoader.Instance.SpawnWithTexture(texture);
+                ImageFiles.Instance.SpawnWithTexture(texture);
             }
             else if (colors != null && titles != null)
             {
-                ImageLoader.Instance.SpawnWithTexture(texture, colors[i], titles[i]);
+                ImageFiles.Instance.SpawnWithTexture(texture, colors[i], titles[i]);
             }
             else if (colors != null)
             {
-                ImageLoader.Instance.SpawnWithTexture(texture, colors[i]);
+                ImageFiles.Instance.SpawnWithTexture(texture, colors[i]);
             }
             else
             {
-                ImageLoader.Instance.SpawnWithTexture(texture, title: titles[i]);
+                ImageFiles.Instance.SpawnWithTexture(texture, title: titles[i]);
             }
             channels[i].Dispose();
         }

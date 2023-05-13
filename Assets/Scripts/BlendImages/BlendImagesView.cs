@@ -59,7 +59,7 @@ public class BlendImagesView : MonoBehaviour
 
     public void Accept()
     {
-	    ImageLoader.Instance.SpawnWithTexture((Texture2D)BlendImage.texture, title: OriginalImageHolder.GetComponent<DragableUIWindow>().WindowTitle + " blend " + OtherImageHolder.GetComponent<DragableUIWindow>().WindowTitle);
+	    ImageFiles.Instance.SpawnWithTexture((Texture2D)BlendImage.texture, title: OriginalImageHolder.GetComponent<DragableUIWindow>().WindowTitle + " blend " + OtherImageHolder.GetComponent<DragableUIWindow>().WindowTitle);
 	    BlendImage.texture = null;
 	    View.Hide(true);
     }
