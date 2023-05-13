@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using OpenCvSharp;
 using SuperMaxim.Messaging;
 using UnityEngine;
@@ -43,7 +42,8 @@ public static class ImageActions
         {"Dylatacja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.DILATE))},
         {"Szkieletyzacja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.Skeletonize))},
         {"Binaryzacja", (x) => Messenger.Default.Publish(new BinaryRequest(x))},
-        {"Zapisz", (x) => ImageFiles.Instance.SaveImage(x, false)}
+        {"Zapisz", (x) => ImageFiles.Instance.SaveImage(x, false)},
+        {"Filtracja dwuetapowa", x => Messenger.Default.Publish(new TwoStepRequest(x))}
     };
 
     private static void HandleBlendImages(ImageHolder A, ImageHolder B)
@@ -477,10 +477,43 @@ public static class ImageActions
         ApplyLUT(duplicateTexture, lut);
         return duplicateTexture;
     }
+
+    public static Mat DoubleArrToMat(double[,] arr)
+    {
+        return new Mat(arr.GetLength(0), arr.GetLength(1), MatType.CV_64FC1, arr);
+    }
+    
+    public static double[,] MatToDoubleArr(Mat mat)
+    {
+        double[,] arr = new double[mat.Rows, mat.Cols];
+        for (int i = 0; i < mat.Rows; i++)
+        {
+            for (int j = 0; j < mat.Cols; j++)
+            {
+                arr[i, j] = mat.At<double>(i, j);
+            }
+        }
+
+        return arr;
+    }
+    
+    public static double[,] MixKernels(double[,] baseKernel, double[,] topKernel)
+    {
+        using Mat baseMat = DoubleArrToMat(baseKernel);
+        using Mat topMat = DoubleArrToMat(topKernel);
+        //using Mat resultMat = new Mat(baseKernel.GetLength(0) + (topKernel.GetLength(0) -1) / 2, baseKernel.GetLength(1) + (topKernel.GetLength(1) -1) / 2, MatType.CV_64FC1);
+        int verticalBorder = (topKernel.GetLength(1) - 1) / 2;
+        int horizontalBorder = (topKernel.GetLength(0) - 1) / 2;
+        using Mat bigBaseMat = baseMat.Clone().CopyMakeBorder(verticalBorder, verticalBorder, horizontalBorder, horizontalBorder, BorderTypes.Constant, Scalar.All(0));
+        using Mat resultMat = bigBaseMat.EmptyClone();
+        
+        Cv2.Filter2D(bigBaseMat, resultMat, MatType.CV_64FC1, topMat, borderType: BorderTypes.Isolated);
+        return MatToDoubleArr(resultMat);
+    }
     
     public static Texture2D ConvolveTexture(ImageHolder source, double[,] kernel, BorderTypes borderType)
     {
-        Debug.Log("filtering image with kernel: " + kernel.ToString() + " and border type: " + borderType.ToString());
+        //Debug.Log("filtering image with kernel: " + kernel.ToString() + " and border type: " + borderType.ToString());
         
         using InputArray kernelArray = InputArray.Create(kernel);
         using Mat inputMat = GetBlackAndWhiteMat(source);
