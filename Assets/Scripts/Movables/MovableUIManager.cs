@@ -28,6 +28,8 @@ public class MovableUIManager : SerializedMonoBehaviour
 	PointerEventData PointerEventData;
 	
 	Dictionary<DragTargetType, List<DragTarget>> DragTargetsByType = new Dictionary<DragTargetType, List<DragTarget>>();
+	
+	public Vector2 AllOffset = Vector2.zero;
 
 	private void Awake()
 	{
@@ -148,6 +150,7 @@ public class MovableUIManager : SerializedMonoBehaviour
 		{
 			dragTarget.OnDrag(delta, false);
 		}
+		AllOffset += delta;
 	}
 
 	private void HandleDragSpecific(GameObject hit, List<DragTarget> allowedDragTargets)

@@ -12,6 +12,8 @@ public class ImageHolder : SerializedMonoBehaviour
 	private const int MaxWindowHeight = 1080 / 2;
 	[SerializeField] private RawImage Image;
 
+	
+	
 	public Action OnTextureUpdated;
 	public Action OnCloseImage;
 	
@@ -46,8 +48,6 @@ public class ImageHolder : SerializedMonoBehaviour
 
 		return new Vector2(width, height);
 	}
-	
-	
 
 	public void EditImage()
 	{

@@ -13,6 +13,8 @@ public class DragableUIWindow : SerializedMonoBehaviour
 	private RectTransform WindowRectTransform;
 	private GameObject Window;
 	private DragTarget self_DragTarget;
+	
+	private GameObject Arrow;
 
 	public Color WindowColor
 	{
@@ -63,6 +65,8 @@ public class DragableUIWindow : SerializedMonoBehaviour
 		CreateWindowTitle();
 
 		RegisterWindowAsDragTarget();
+		
+		Arrow = ArrowSpawner.Instance.SpawnArrow(WindowRectTransform);
 	}
 
 	private void CreateWindowTitle()
@@ -181,6 +185,11 @@ public class DragableUIWindow : SerializedMonoBehaviour
 	private void OnDestroy()
 	{
 		Messenger.Default.Publish(new UnRegisterDragTarget(self_DragTarget));
+		if (Arrow != null)
+		{
+			Arrow.SetActive(false);
+			Destroy(Arrow);
+		}
 	}
 
 	private void OnDrag(Vector2 dragValue, bool focus)
