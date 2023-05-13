@@ -395,21 +395,21 @@ public class ConvolutionView : SerializedMonoBehaviour
 		Messenger.Default.Unsubscribe<ConvolutionRequest>(AddToQueue);
 	}
 
-	private void TryReadValue(string textvalue, ref double target, double min, double max)
+	public static void TryReadValue(string textvalue, ref double target, double min, double max)
 	{
 		var value = ReadValue(textvalue, min, max);
 		if (value is null || Math.Abs(target - value.Value) < double.Epsilon) return;
 		target = value.Value;
 	}
 
-	private void TryReadValue(string textvalue, ref int target, int min, int max)
+	public static void TryReadValue(string textvalue, ref int target, int min, int max)
 	{
 		var value = ReadValue(textvalue, min, max);
 		if (value is null || target != value.Value) return;
 		target = value.Value;
 	}
 
-	private double? ReadValue(string text, double min, double max)
+	public static double? ReadValue(string text, double min, double max)
 	{
 		if (string.IsNullOrEmpty(text)) return null;
 		IFormatProvider formatProvider = new CultureInfo("en-US");
@@ -424,7 +424,7 @@ public class ConvolutionView : SerializedMonoBehaviour
 		return null;
 	}
 
-	private int? ReadValue(string text, int min, int max)
+	public static int? ReadValue(string text, int min, int max)
 	{
 		if (string.IsNullOrEmpty(text)) return null;
 		if (int.TryParse(text, out int value))

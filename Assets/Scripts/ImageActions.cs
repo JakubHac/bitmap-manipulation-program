@@ -602,7 +602,7 @@ public static class ImageActions
         {
             Mat erodedMat = Mat.Zeros(imgMat.Size(), imgMat.Type()).ToMat();
             Mat tmpMat = Mat.Zeros(imgMat.Size(), imgMat.Type()).ToMat();
-            
+
             Cv2.MorphologyEx(imgMat, erodedMat, MorphTypes.ERODE, structuringElement, borderType: borderType);
             Cv2.MorphologyEx(erodedMat, tmpMat, MorphTypes.DILATE, structuringElement, borderType: borderType);
             Cv2.Subtract(imgMat, tmpMat, tmpMat);
