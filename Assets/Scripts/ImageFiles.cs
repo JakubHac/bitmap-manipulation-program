@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using OpenCvSharp;
 using SimpleFileBrowser;
+using SuperMaxim.Messaging;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Networking;
@@ -43,9 +45,9 @@ public class ImageFiles : MonoBehaviour
 			Application.persistentDataPath, title: "Wybierz obrazy", loadButtonText: "Wybierz");
 	}
 
-	public void SaveImage(ImageHolder source, bool compression)
+	public void SaveImage(ImageHolder source)
 	{
-		FileBrowser.ShowSaveDialog(result => OnSaveSucces(result, compression, OpenCvSharp.Unity.TextureToMat(source.Texture)), OnSaveCancel, FileBrowser.PickMode.Files, allowMultiSelection: false, title:"Zapisz obraz", saveButtonText: "Zapisz", initialFilename: source.GetComponent<DragableUIWindow>().WindowTitle);
+		FileBrowser.ShowSaveDialog(result => OnSaveSucces(result, source), OnSaveCancel, FileBrowser.PickMode.Files, allowMultiSelection: false, title:"Zapisz obraz", saveButtonText: "Zapisz", initialFilename: source.GetComponent<DragableUIWindow>().WindowTitle);
 	}
 
 	private void OnSaveCancel()
@@ -53,9 +55,39 @@ public class ImageFiles : MonoBehaviour
 		
 	}
 
-	private void OnSaveSucces(string[] paths, bool compression, Mat mat)
+	private void OnSaveSucces(string[] paths, ImageHolder source)
 	{
-		Cv2.ImWrite(paths[0], mat);
+		string path = paths[0];
+		if (!Path.HasExtension(path))
+		{
+			path += ".bmp";
+		}
+
+		string extension = Path.GetExtension(path);
+
+		if (!ImageExtensions.Contains(extension)) return;
+
+		
+
+		switch (extension)
+		{
+			case ".jpg":
+			case ".jpeg":
+			case ".bmp":
+				Messenger.Default.Publish(new SaveImageRequest(source, path));
+				break;
+			case ".png":
+				SavePNG(source, path);
+				break;
+			default:
+				return;
+		}
+	}
+
+	private void SavePNG(ImageHolder source, string path)
+	{
+		byte[] pngData = source.Texture.EncodeToPNG();
+		FileBrowserHelpers.WriteBytesToFile(path, pngData);
 	}
 
 	private void OnLoadCancel()

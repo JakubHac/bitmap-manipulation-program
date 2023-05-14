@@ -42,7 +42,7 @@ public static class ImageActions
         {"Dylatacja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.DILATE))},
         {"Szkieletyzacja", (x) => Messenger.Default.Publish(new MorphologyRequest(x, MorphTypes.Skeletonize))},
         {"Binaryzacja", (x) => Messenger.Default.Publish(new BinaryRequest(x))},
-        {"Zapisz", (x) => ImageFiles.Instance.SaveImage(x, false)},
+        {"Zapisz", (x) => ImageFiles.Instance.SaveImage(x)},
         {"Filtracja dwuetapowa", x => Messenger.Default.Publish(new TwoStepRequest(x))}
     };
 
