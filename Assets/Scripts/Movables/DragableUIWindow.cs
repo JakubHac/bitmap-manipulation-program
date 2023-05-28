@@ -80,8 +80,8 @@ public class DragableUIWindow : SerializedMonoBehaviour
 		titleTransform.anchoredPosition3D = new Vector3(0f, 0f, 0f);
 		titleTransform.anchorMin = new Vector2(0f, 1f);
 		titleTransform.anchorMax = new Vector2(1f, 1f);
-		titleTransform.offsetMin = new Vector2(50f, 0f);
-		titleTransform.offsetMax = new Vector2(-50f, 42f);
+		titleTransform.offsetMin = new Vector2(80f, 0f);
+		titleTransform.offsetMax = new Vector2(-80f, 72f);
 		titleTransform.anchoredPosition3D = new Vector3(0f, -5f, 0f);
 		
 
@@ -109,7 +109,7 @@ public class DragableUIWindow : SerializedMonoBehaviour
 
 	private void CreateWindow()
 	{
-		var yOffset = 50f;
+		var yOffset = 80f;
 		Vector2 tabOffset = new Vector2(2, yOffset + 2);
 		ChildRectTransform = GetComponent<RectTransform>();
 		Window = new GameObject($"Window - {gameObject.name}");
@@ -130,7 +130,7 @@ public class DragableUIWindow : SerializedMonoBehaviour
 		var buttonTransform = buttonGo.AddComponent<RectTransform>();
 		buttonTransform.SetParent(WindowRectTransform);
 		buttonTransform.localScale = Vector3.one;
-		buttonTransform.sizeDelta = new Vector2(42f, 42f);
+		buttonTransform.sizeDelta = new Vector2(72f, 72f);
 		buttonTransform.pivot = new Vector2(1f, 1f);
 		buttonTransform.anchorMax = new Vector2(1f, 1f);
 		buttonTransform.anchorMin = new Vector2(1f, 1f);
@@ -154,7 +154,7 @@ public class DragableUIWindow : SerializedMonoBehaviour
 		var buttonTransform = buttonGo.AddComponent<RectTransform>();
 		buttonTransform.SetParent(WindowRectTransform);
 		buttonTransform.localScale = Vector3.one;
-		buttonTransform.sizeDelta = new Vector2(42f, 42f);
+		buttonTransform.sizeDelta = new Vector2(72f, 72f);
 		buttonTransform.pivot = new Vector2(0f, 1f);
 		buttonTransform.anchorMax = new Vector2(0f, 1f);
 		buttonTransform.anchorMin = new Vector2(0f, 1f);

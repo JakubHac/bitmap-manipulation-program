@@ -154,7 +154,12 @@ public class TwoStepView : SerializedMonoBehaviour
 			{
 				yield return null;
 			}
-			LayoutRebuilder.ForceRebuildLayoutImmediate(this.GetComponent<RectTransform>());
+			for (int i = 0; i < 5; i++)
+			{
+				LayoutRebuilder.ForceRebuildLayoutImmediate(this.GetComponent<RectTransform>());
+				yield return null;
+			}
+			
 		}
 	}
 

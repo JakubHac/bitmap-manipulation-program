@@ -57,5 +57,7 @@ public class ImageHolder : SerializedMonoBehaviour
 	private void OnDestroy()
 	{
 		OnCloseImage?.Invoke();
+		Image.texture = null;
+		Resources.UnloadUnusedAssets();
 	}
 }

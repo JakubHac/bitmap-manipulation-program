@@ -105,8 +105,10 @@ public class ImageFiles : MonoBehaviour
 
 	private IEnumerator LoadFromURI(string uri)
 	{
+		//Uri.EscapeUriString(uri);
+		
 		string extension = Path.GetExtension(uri);
-		string filename = Path.GetFileName(uri);
+		string filename = Path.GetFileName(Uri.UnescapeDataString(uri));
 		if (!ImageExtensions.Contains(extension))
 		{
 			Debug.LogError($"Cannot read image format {extension}: " + uri);
@@ -137,7 +139,7 @@ public class ImageFiles : MonoBehaviour
 				yield break;
 		}
 
-		SpawnWithTexture(tex, title: Path.GetFileName(filename));
+		SpawnWithTexture(tex, title: filename);
 	}
 
 	private void LoadImageFromPath(string path)

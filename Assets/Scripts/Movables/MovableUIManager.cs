@@ -41,13 +41,14 @@ public class MovableUIManager : SerializedMonoBehaviour
 
 	private void Update()
 	{
-		if (!Application.isFocused || SimpleFileBrowser.FileBrowser.IsOpen)
+		if (!Application.isFocused || SimpleFileBrowser.FileBrowser.IsOpen || (Input.touchCount == 0 && !Input.GetMouseButton(0)))
 		{
+			LastDragTargetGameObject = null;
 			lastMousePos = null;
 			return;
 		}
 		
-		Vector3 screenPoint = Input.mousePosition;
+		Vector3 screenPoint = Input.touchCount > 0 ? Input.GetTouch(0).position : Input.mousePosition;
 		screenPoint.z = ImageCanvasPlaneDistance;
 		MousePos = MainCamera.ScreenToWorldPoint(screenPoint);
 
@@ -81,14 +82,14 @@ public class MovableUIManager : SerializedMonoBehaviour
 			LastDragTargetGameObject = null;
 		}
 
-		if (Input.GetMouseButton(0))
+		if (Input.GetMouseButton(0) || Input.touchCount > 0)
 		{
 			List<RaycastResult> results = new List<RaycastResult>();
 			if (LastDragTargetGameObject == null)
 			{
 				PointerEventData = new PointerEventData(EventSystem.current)
 				{
-					position = Input.mousePosition
+					position = Input.touchCount > 0 ? Input.GetTouch(0).position : Input.mousePosition
 				};
 				RaycastersByType[allowedDragTargetType].Raycast(PointerEventData, results);
 			}
