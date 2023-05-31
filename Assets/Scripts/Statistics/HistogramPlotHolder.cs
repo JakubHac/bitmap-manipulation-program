@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using XCharts.Runtime;
 
@@ -48,17 +49,19 @@ public class HistogramPlotHolder : MonoBehaviour
 		plot.RemoveChartComponent<Title>();
 		window.WindowTitle = $"Histogram {imageHolderWindow.WindowTitle}";
         
+		var histogram = ImageActions.GetHistogram(ImageHolder);
+		
 		var yAxis = plot.EnsureChartComponent<YAxis>();
 		yAxis.minMaxType = Axis.AxisMinMaxType.Custom;
 		yAxis.min = 0;
-		yAxis.max = 255;
+		yAxis.max = histogram.Max();
         
 		plot.RemoveData();
 		var serie = plot.AddSerie<Bar>("Wartość");
 		serie.barGap = 0;
 		serie.barWidth = 1;
 		
-		var histogram = ImageActions.GetHistogram(ImageHolder);
+		
 
 		for (int i = 0; i < histogram.Length; i++)
 		{

@@ -224,7 +224,7 @@ public static class ImageActions
         texture.Apply();
     }
 
-    private static byte[] NormalizedCumulativeDistribution(byte[] input)
+    private static byte[] NormalizedCumulativeDistribution(long[] input)
     {
         double sum = 0;
         double[] cumulativeSum = new double[input.Length];
@@ -300,9 +300,9 @@ public static class ImageActions
 
 
     private const float UnityColorToHistogramAverage = 255f / 3f;
-    public static byte[] GetHistogram(ImageHolder imageHolder)
+    public static long[] GetHistogram(ImageHolder imageHolder)
     {
-        byte[] histogram = new byte[256];
+        long[] histogram = new long[256];
         var texture = imageHolder.Texture;
         for (int i = 0; i < texture.width; i++)
         {
